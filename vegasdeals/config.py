@@ -58,7 +58,7 @@ class TaxModel:
 
 @dataclass(frozen=True)
 class Settings:
-    anchor: str = "89109"
+    anchor: str = "89148"
     drive_minutes: int = 20
     ors_api_key: str | None = None
     anthropic_api_key: str | None = None
@@ -73,7 +73,7 @@ class Settings:
 
 def load_settings() -> Settings:
     return Settings(
-        anchor=os.getenv("VD_ANCHOR", "89109"),
+        anchor=os.getenv("VD_ANCHOR", "89148"),
         drive_minutes=int(_f("VD_DRIVE_MINUTES", 20)),
         ors_api_key=os.getenv("ORS_API_KEY") or None,
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,

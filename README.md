@@ -50,6 +50,7 @@ python -m vegasdeals serve      # http://127.0.0.1:8000
 | `refresh` | Scrapes every store in range, prices and scores everything, writes a run. |
 | `ask "..."` | One question from the terminal. |
 | `status` | What the last run collected, per store. |
+| `radius` | Shows which parts of the valley fall inside your drive-time budget, and which just miss. Run this first. |
 | `serve` | Web app + scheduled refreshes. |
 
 ## How the scraping works
@@ -98,6 +99,13 @@ requests/day, far more than this needs) and set `ORS_API_KEY`.
 
 A store whose coordinates never resolved is **kept**, not dropped — a missing
 address shouldn't silently hide a dispensary that's next door.
+
+`python -m vegasdeals radius` shows where your line actually falls, including a
+"just outside" band. That band matters: from a valley-edge anchor such as the
+default `89148`, straight-line distance puts the Strip cluster
+(`89109`/`89102`/`89169`) at ~21 minutes — just barely excluded — when the 215
+makes the real drive comfortably shorter. Either set `ORS_API_KEY` or raise
+`VD_FALLBACK_MPH` to about 30.
 
 ## Honest limitations
 
