@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10141a">
+<title>Vegas Deals</title>
+<style>
+  :root {
+    --bg:#f6f7f9; --card:#fff; --ink:#12151a; --muted:#616b7a; --line:#e3e7ec;
+    --accent:#1f7a4d; --accent-ink:#fff; --chip:#eef1f5; --good:#0f7b46; --warn:#9a5b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#10141a; --card:#181d25; --ink:#e9edf3; --muted:#93a0b1; --line:#28303b;
+            --accent:#2ea36a; --accent-ink:#07130d; --chip:#222a34; --good:#4cc98a; --warn:#e0a458; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .wrap { max-width:720px; margin:0 auto; padding:16px; }
+  header { display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin-bottom:14px; flex-wrap:wrap; }
+  h1 { font-size:20px; margin:0; letter-spacing:-.01em; }
+  .meta { color:var(--muted); font-size:13px; }
+  form { display:flex; gap:8px; margin-bottom:12px; }
+  input[type=text] { flex:1; min-width:0; padding:13px 14px; font-size:16px;
+    border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); }
+  input[type=text]:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  button { padding:13px 18px; font-size:15px; font-weight:600; border:0; border-radius:12px;
+    background:var(--accent); color:var(--accent-ink); cursor:pointer; }
+  button:disabled { opacity:.55; cursor:progress; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .chip { padding:7px 12px; font-size:13px; border-radius:999px; background:var(--chip);
+    color:var(--ink); cursor:pointer; border:1px solid transparent; }
+  .chip:hover { border-color:var(--accent); }
+  .answer { background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:16px; margin-bottom:16px; white-space:pre-wrap; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:13px 14px; margin-bottom:10px; }
+  .card h3 { margin:0 0 3px; font-size:15px; font-weight:650; }
+  .row { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+  .price { font-size:19px; font-weight:700; white-space:nowrap; }
+  .was { color:var(--muted); text-decoration:line-through; font-size:13px;
+    font-weight:400; margin-left:6px; }
+  .sub { color:var(--muted); font-size:13px; }
+  .why { color:var(--good); font-size:13px; margin-top:5px; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+  .tag { font-size:11.5px; padding:3px 8px; border-radius:6px; background:var(--chip);
+    color:var(--muted); }
+  .empty { color:var(--muted); text-align:center; padding:28px 0; }
+  .err { color:#c0392b; }
+  a { color:inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Vegas Deals</h1>
+    <span class="meta" id="meta">loading…</span>
+  </header>
+
+  <form id="f">
+    <input type="text" id="q" placeholder="What's the best deal on an eighth?"
+           autocomplete="off" enterkeyhint="search">
+    <button id="go" type="submit">Ask</button>
+  </form>
+
+  <div class="chips" id="chips"></div>
+  <div id="answer"></div>
+  <div id="results"></div>
+</div>
+
+<script>
+const SUGGESTIONS = [
+  "Best deal on an eighth right now",
+  "Cheapest gram of flower near me",
+  "Best value carts today",
+  "Any good edible deals?",
+  "Cheapest ounce within 15 minutes",
+  "What's the single best buy today?"
+];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+function money(n) { return n == null ? "" : "$" + Number(n).toFixed(2); }
+
+const UNIT = { per_gram: "/g", per_100mg_thc: "/100mg THC", per_item: "" };
+
+function card(r) {
+  const tags = [];
+  if (r.category) tags.push(r.category);
+  if (r.size_text) tags.push(r.size_text);
+  if (r.thc_percent) tags.push(Number(r.thc_percent).toFixed(1) + "% THC");
+  if (r.drive_minutes != null) tags.push(Math.round(r.drive_minutes) + " min away");
+  if (r.unit_price != null && UNIT[r.unit_basis])
+    tags.push(money(r.unit_price) + UNIT[r.unit_basis]);
+  if (r.percent_off) tags.push(Math.round(r.percent_off) + "% off");
+
+  const title = r.url
+    ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>`
+    : esc(r.name);
+
+  return `<div class="card">
+    <div class="row">
+      <h3>${title}</h3>
+      <div class="price">${money(r.out_the_door)}${
+        r.base_price ? `<span class="was">${money(r.base_price)}</span>` : ""}</div>
+    </div>
+    <div class="sub">${esc(r.dispensary_name)}${r.brand ? " · " + esc(r.brand) : ""}</div>
+    ${r.score_reasons ? `<div class="why">${esc(r.score_reasons)}</div>` : ""}
+    <div class="tags">${tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+  </div>`;
+}
+
+async function ask(question) {
+  $("q").value = question;
+  $("go").disabled = true;
+  $("answer").innerHTML = `<div class="answer">Checking today's menus…</div>`;
+  $("results").innerHTML = "";
+  try {
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+    $("answer").innerHTML = `<div class="answer">${esc(data.answer)}</div>`;
+    $("results").innerHTML = (data.results || []).map(card).join("")
+      || `<div class="empty">No matching products in the latest refresh.</div>`;
+  } catch (e) {
+    $("answer").innerHTML =
+      `<div class="answer err">Couldn't reach the server: ${esc(e.message)}</div>`;
+  } finally {
+    $("go").disabled = false;
+  }
+}
+
+$("f").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("q").value.trim();
+  if (q) ask(q);
+});
+
+$("chips").innerHTML = SUGGESTIONS
+  .map(s => `<span class="chip">${esc(s)}</span>`).join("");
+$("chips").addEventListener("click", e => {
+  if (e.target.classList.contains("chip")) ask(e.target.textContent);
+});
+
+fetch("/api/status").then(r => r.json()).then(s => {
+  const run = s.latest_run;
+  const when = run?.finished_at
+    ? new Date(run.finished_at).toLocaleString([], { month:"short", day:"numeric",
+        hour:"numeric", minute:"2-digit" })
+    : "never";
+  $("meta").textContent =
+    `${s.stores_in_radius} stores · ${s.drive_minutes} min of ${s.anchor} · ` +
+    `${run?.offer_count ?? 0} offers · updated ${when}`;
+}).catch(() => { $("meta").textContent = "status unavailable"; });
+</script>
+</body>
+</html>

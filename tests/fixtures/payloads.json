@@ -1,0 +1,51 @@
+[
+  {
+    "_platform": "dutchie",
+    "url": "https://dutchie.com/graphql?operationName=FilteredProducts",
+    "body": {"data": {"filteredProducts": {"products": [
+      {"id":"a1","Name":"Blue Dream","brand":{"name":"Matrix"},"type":"Flower",
+       "Options":["1g","3.5g","7g"],"Prices":[12,35,60],
+       "recSpecialPrices":[10,28,50],"THCContent":{"value":22.4,"unit":"PERCENT"},
+       "special":true,"specialData":{"name":"30% Off Flower"}},
+      {"id":"a2","Name":"Sour Diesel Live Resin Cart","brand":{"name":"Church"},
+       "type":"Vaporizers","Options":["0.5g","1g"],"Prices":[30,55],"THCContent":{"value":81.2}}
+    ]}}}
+  },
+  {
+    "_platform": "jane",
+    "url": "https://api.iheartjane.com/v1/stores/1234/menu_products",
+    "body": {"products": [
+      {"product_id": 55, "name": "Wedding Cake", "brand": "Remedy",
+       "kind": "flower", "price_eighth_ounce": 30.0, "price_gram": 10.0,
+       "discounted_price_eighth_ounce": 24.0,
+       "available_weights": ["gram","eighth_ounce"], "percent_thc": 26.1},
+      {"product_id": 56, "name": "Sour Gummies 100mg 10pk", "brand": "Wyld",
+       "kind": "edible", "price_each": 22.0, "discounted_price_each": 16.0}
+    ]}
+  },
+  {
+    "_platform": "weedmaps",
+    "url": "https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/x/menu_items",
+    "body": {"data": {"menu_items": [
+      {"id": 900, "name": "GG4 Eighth", "brand": {"name": "Nature's Chemistry"},
+       "category": {"name": "Flower"},
+       "price_variants": [{"label": "1/8 oz", "price": "27.00", "original_price": "45.00"}],
+       "best_price": "27.00"}
+    ]}}
+  },
+  {
+    "_platform": "leafly",
+    "url": "https://leafly.com/api/dispensary/menu",
+    "body": {"menuItems": [
+      {"menuItemId": 7, "name": "Papaya Badder", "brandName": "Fleur",
+       "categoryName": "Concentrates",
+       "variants": [{"packageSize": "1g", "price": 32.5, "originalPrice": 50}]}
+    ]}
+  },
+  {
+    "_platform": "noise",
+    "url": "https://example.com/api/config",
+    "body": {"storeId": 8817263, "timestamp": 1717171717, "featureFlags":
+      {"newCheckout": true, "maxItems": 99}, "user": {"name": "guest", "id": 42}}
+  }
+]
