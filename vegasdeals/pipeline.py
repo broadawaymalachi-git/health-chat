@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import os
 import urllib.request
 from pathlib import Path
 
 from . import db, dispensaries as ds
-from .config import Settings, DB_PATH, SEED_PATH, STORAGE_STATE_DIR
+from .config import Settings, DATA_DIR, DB_PATH, SEED_PATH, STORAGE_STATE_DIR
 from .geo import Point, drive_minutes_matrix, geocode
 from .harvest import harvest
 from .normalize import Offer, score_offers
@@ -17,6 +19,25 @@ log = logging.getLogger(__name__)
 
 # How many candidate URLs to try per store before giving up on it.
 MAX_URL_ROUNDS = 4
+
+
+def _save_sample(store_id: str, cap) -> None:
+    """Dump a slice of raw captured JSON for diagnosing parser gaps.
+
+    Without this there is no way to tell a store that blocked us from one whose
+    fields we simply failed to recognize -- both look like zero offers.
+    """
+    out = DATA_DIR / "samples"
+    out.mkdir(parents=True, exist_ok=True)
+    sample = [{"url": p["url"], "body": p["body"]} for p in cap.payloads[:8]]
+    try:
+        text = json.dumps(
+            {"store": store_id, "page": cap.url, "error": cap.error,
+             "payload_count": len(cap.payloads), "payloads": sample},
+            default=str)[:2_000_000]
+        (out / f"{store_id}.json").write_text(text)
+    except Exception as exc:
+        log.debug("could not save sample for %s: %s", store_id, exc)
 
 
 def _get_html(url: str, timeout: int = 20) -> str:
@@ -128,6 +149,8 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
                 o.drive_minutes = store.drive_minutes
                 o.enrich(settings.tax)
             offers = [o for o in offers if o.out_the_door is not None]
+            if os.getenv("VD_SAVE_SAMPLES"):
+                _save_sample(store.id, cap)
             if offers:
                 found[store.id] = offers
                 # Remember what worked so the next run goes straight there.

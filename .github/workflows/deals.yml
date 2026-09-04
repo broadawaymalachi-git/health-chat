@@ -50,6 +50,7 @@ jobs:
           VD_HEADLESS: "true"
           VD_CONCURRENCY: "3"
           VD_DELAY_SECONDS: "2.0"
+          VD_SAVE_SAMPLES: "1"
           ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
         run: python -m vegasdeals refresh
 
@@ -79,11 +80,13 @@ jobs:
             done
           fi
 
-      - name: Keep the raw database as an artifact
+      - name: Keep the raw database and menu samples as artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: deals-db
-          path: data/deals.db
+          path: |
+            data/deals.db
+            data/samples/
           retention-days: 14
           if-no-files-found: ignore

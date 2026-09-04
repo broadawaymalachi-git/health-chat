@@ -5,3 +5,4 @@ data/deals.db
 data/storage_state/
 .venv/
 
+data/samples/
