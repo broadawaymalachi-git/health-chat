@@ -15,6 +15,9 @@ from .parsers import offers_from_payloads
 
 log = logging.getLogger(__name__)
 
+# How many candidate URLs to try per store before giving up on it.
+MAX_URL_ROUNDS = 4
+
 
 def _get_html(url: str, timeout: int = 20) -> str:
     req = urllib.request.Request(url, headers={
@@ -92,38 +95,58 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
     log.info("refreshing %d of %d stores within %d minutes",
              len(targets), len(stores), settings.drive_minutes)
 
-    captures = await harvest(
-        [(s.id, s.scrape_url) for s in targets],
-        headless=settings.headless,
-        concurrency=settings.concurrency,
-        delay_seconds=settings.delay_seconds,
-        storage_dir=STORAGE_STATE_DIR,
-    )
-
     by_id = {s.id: s for s in targets}
     all_offers: list[Offer] = []
     ok = failed = 0
     statuses: list[tuple[str, bool, int, str | None]] = []
 
-    for cap in captures:
-        store = by_id[cap.dispensary_id]
-        offers = offers_from_payloads(cap.payloads, store.id, store.name)
-        for o in offers:
-            o.drive_minutes = store.drive_minutes
-            o.enrich(settings.tax)
-        # Keep only offers we can actually price.
-        offers = [o for o in offers if o.out_the_door is not None]
-        all_offers.extend(offers)
+    # Round-robin the candidate URLs: everyone tries their best URL, then only
+    # the stores that came back empty try their next one. This keeps the common
+    # case to a single page load per store while still rescuing the ones whose
+    # menu isn't where we first guessed.
+    pending = {s.id: list(s.candidate_urls) for s in targets}
+    found: dict[str, list[Offer]] = {}
+    last_error: dict[str, str | None] = {s.id: None for s in targets}
 
+    for round_no in range(MAX_URL_ROUNDS):
+        batch = [(sid, urls.pop(0)) for sid, urls in pending.items()
+                 if urls and sid not in found]
+        if not batch:
+            break
+        log.info("round %d: trying %d store URLs", round_no + 1, len(batch))
+        captures = await harvest(
+            batch,
+            headless=settings.headless,
+            concurrency=settings.concurrency,
+            delay_seconds=settings.delay_seconds,
+            storage_dir=STORAGE_STATE_DIR,
+        )
+        for cap in captures:
+            store = by_id[cap.dispensary_id]
+            offers = offers_from_payloads(cap.payloads, store.id, store.name)
+            for o in offers:
+                o.drive_minutes = store.drive_minutes
+                o.enrich(settings.tax)
+            offers = [o for o in offers if o.out_the_door is not None]
+            if offers:
+                found[store.id] = offers
+                # Remember what worked so the next run goes straight there.
+                store.menu_url = cap.url
+                log.info("%-28s %4d offers via %s", store.name, len(offers), cap.url)
+            else:
+                last_error[store.id] = cap.error or "loaded but no offers parsed"
+
+    for store in targets:
+        offers = found.get(store.id, [])
+        all_offers.extend(offers)
         if offers:
             ok += 1
         else:
             failed += 1
-        statuses.append((
-            store.id, bool(offers), len(offers),
-            cap.error or (None if offers else "loaded but no offers parsed"),
-        ))
-        log.info("%-28s %4d offers %s", store.name, len(offers), cap.error or "")
+        statuses.append((store.id, bool(offers), len(offers),
+                         None if offers else last_error[store.id]))
+
+    ds.save(seed_path, stores)
 
     score_offers(all_offers)
 

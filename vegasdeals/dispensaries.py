@@ -56,6 +56,25 @@ class Dispensary:
     def scrape_url(self) -> str:
         return self.menu_url or self.website
 
+    @property
+    def candidate_urls(self) -> list[str]:
+        """URLs to try, best first.
+
+        A homepage almost never carries the menu JSON -- the products live at
+        /menu, /shop or an embedded vendor URL. Trying the common paths is what
+        turns "loaded but no offers parsed" into an actual menu.
+        """
+        base = self.website.rstrip("/")
+        urls = [self.menu_url] if self.menu_url else []
+        urls += [f"{base}{p}" for p in
+                 ("/menu", "/shop", "/order-online", "/specials", "/deals", "/products")]
+        urls.append(base)
+        seen, out = set(), []
+        for u in urls:
+            if u and u not in seen:
+                seen.add(u); out.append(u)
+        return out
+
 
 def detect_platform(html: str) -> str | None:
     for name, pattern in PLATFORM_SIGNATURES:

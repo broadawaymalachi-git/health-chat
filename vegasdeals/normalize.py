@@ -35,6 +35,11 @@ _FRACTIONS: dict[str, float] = {
 }
 
 _GRAM_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:g|gr|gram|grams)\b", re.I)
+# "0.5" / ".5" / "1" immediately before a vape word, e.g. "Blue Dream 1g AIO",
+# "Sour Diesel .5 Disposable", "2G BRIQ".
+_VAPE_SIZE_RE = re.compile(
+    r"(?:^|[\s(\[|/-])(\d?\.?\d+)\s*(?:g\b|gram)?\s*"
+    r"(?:aio|all-in-one|disposable|dispo|cart|cartridge|pod|vape|briq|pen)", re.I)
 _MG_RE = re.compile(r"(\d+(?:\.\d+)?)\s*mg\b", re.I)
 _OZ_NUM_RE = re.compile(r"(?<![/\d.])(\d+(?:\.\d+)?)\s*(?:oz|ounce|ounces)\b", re.I)
 _FRACTION_OZ_RE = re.compile(r"(\d+/\d+)\s*(?:oz|ounce|ounces)?\b", re.I)
@@ -54,6 +59,15 @@ def _pack_count(low: str) -> int | None:
 
 # Category buckets. Order matters -- first match wins.
 _CATEGORY_RULES: list[tuple[str, tuple[str, ...]]] = [
+    # Checked first: hardware and merch that would otherwise match a product rule
+    # ("510 Thread Cartridge Adapter" contains "cart" and is not a vape).
+    ("accessory", (
+        "adapter", "battery", "batteries", "charger", "charging", "510 thread",
+        "grinder", "lighter", "rolling paper", "rolling tray", "tray", "pipe",
+        "bong", "rig", "torch lighter", "ashtray", "storage jar", "apparel",
+        "t-shirt", "hoodie", "hat", "sticker", "lanyard", "case", "stash",
+        "gift card", "merch", "accessor",
+    )),
     ("preroll", ("preroll", "pre-roll", "pre roll", "joint", "blunt", "infused roll")),
     ("vape", ("cart", "cartridge", "vape", "disposable", "pod", "aio", "all-in-one")),
     ("concentrate", (
@@ -122,6 +136,16 @@ def parse_weight_grams(*texts: str | None) -> float | None:
         m = _OZ_NUM_RE.search(low)
         if m:
             grams = float(m.group(1)) * GRAMS_PER_OZ
+    if grams is None:
+        m = _VAPE_SIZE_RE.search(low)
+        if m:
+            try:
+                candidate = float(m.group(1))
+                # Disposables run 0.3g-3g; anything else is a count or a strain number.
+                if 0.2 <= candidate <= 3.0:
+                    grams = candidate
+            except ValueError:
+                pass
     if grams is None:
         for word, value in _WEIGHT_WORDS:
             if word in low:
