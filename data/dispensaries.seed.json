@@ -16,7 +16,7 @@
     "id": "thesource",
     "name": "The Source",
     "website": "https://www.thesourcenv.com",
-    "menu_url": "https://www.thesourcenv.com/menu",
+    "menu_url": "https://www.thesourcenv.com/shop",
     "platform": "dutchie",
     "address": "2550 S Rainbow Blvd, Las Vegas, NV, 89146",
     "lat": 36.1439123,
@@ -133,7 +133,7 @@
     "id": "zenleaf",
     "name": "Zen Leaf",
     "website": "https://zenleafdispensaries.com",
-    "menu_url": null,
+    "menu_url": "https://zenleafdispensaries.com/menu",
     "platform": "sweed",
     "address": null,
     "lat": null,
@@ -192,7 +192,7 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: URLError"
+    "notes": "unreachable: HTTPError"
   },
   {
     "id": "thedispensary",
