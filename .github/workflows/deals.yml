@@ -1,0 +1,89 @@
+name: Scrape dispensary deals
+
+# GitHub's runners have unrestricted outbound network access, which is what
+# makes this work: the Claude Code environment cannot reach dispensary sites,
+# but a runner can. It scrapes, then commits the result back so the data is
+# readable from anywhere -- including a chat session.
+on:
+  schedule:
+    - cron: "0 15 * * *"   # 08:00 Pacific — morning specials
+    - cron: "0 22 * * *"   # 15:00 Pacific — afternoon drops
+  workflow_dispatch:        # and any time you press the button
+
+concurrency:
+  group: deals
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/cannabis-dispensary-deals-f2flpf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Resolve store menus, addresses and drive times
+        env:
+          VD_ANCHOR: "89148"
+          VD_DRIVE_MINUTES: "20"
+          ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
+        run: python -m vegasdeals resolve || true
+
+      - name: Scrape menus
+        env:
+          VD_ANCHOR: "89148"
+          VD_DRIVE_MINUTES: "20"
+          VD_HEADLESS: "true"
+          VD_CONCURRENCY: "3"
+          VD_DELAY_SECONDS: "2.0"
+          ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
+        run: python -m vegasdeals refresh
+
+      - name: Report what each store gave up
+        run: python -m vegasdeals status || true
+
+      - name: Export snapshot
+        env:
+          VD_ANCHOR: "89148"
+          VD_DRIVE_MINUTES: "20"
+        run: python -m vegasdeals export --out data/latest.json
+
+      - name: Commit the snapshot
+        run: |
+          git config user.name  "deals-bot"
+          git config user.email "deals-bot@users.noreply.github.com"
+          git add data/latest.json data/dispensaries.seed.json
+          if git diff --staged --quiet; then
+            echo "No change in today's deals."
+          else
+            git commit -m "Deals snapshot $(date -u +'%Y-%m-%d %H:%M UTC')"
+            # The scheduled run and a manual one can collide; rebase and retry.
+            for i in 1 2 3; do
+              git pull --rebase origin claude/cannabis-dispensary-deals-f2flpf && \
+              git push origin HEAD:claude/cannabis-dispensary-deals-f2flpf && break
+              sleep $((i * 5))
+            done
+          fi
+
+      - name: Keep the raw database as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deals-db
+          path: data/deals.db
+          retention-days: 14
+          if-no-files-found: ignore

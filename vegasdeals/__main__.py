@@ -22,6 +22,9 @@ def main(argv: list[str] | None = None) -> int:
         "radius", help="Show which parts of the valley fall inside your drive-time budget")
     p_rad.add_argument("--minutes", type=int, default=None,
                        help="Override VD_DRIVE_MINUTES for this check")
+    p_exp = sub.add_parser(
+        "export", help="Write a compact JSON snapshot of the latest run")
+    p_exp.add_argument("--out", default="data/latest.json")
     p_ask = sub.add_parser("ask", help="Ask a question about today's deals")
     p_ask.add_argument("question", nargs="+")
     p_serve = sub.add_parser("serve", help="Run the web app")
@@ -97,6 +100,55 @@ def main(argv: list[str] | None = None) -> int:
             flag = "ok " if r["last_offers"] else "EMPTY"
             print(f"  {flag} {r['dispensary_id']:<16} {r['last_offers']:>5} offers "
                   f"{r['last_error'] or ''}")
+        return 0
+
+    if args.cmd == "export":
+        import datetime, pathlib as _pl
+
+        with db.connect(DB_PATH) as conn:
+            run_id = db.latest_run_id(conn)
+            if run_id is None:
+                print("No completed runs to export.")
+                return 1
+            run = dict(conn.execute(
+                "SELECT * FROM runs WHERE id=?", (run_id,)).fetchone())
+            store_rows = [dict(r) for r in conn.execute(
+                "SELECT * FROM store_status ORDER BY last_offers DESC").fetchall()]
+
+            def top(where: str, params: tuple, limit: int) -> list[dict]:
+                sql = (f"SELECT dispensary_name, name, brand, category, size_text, "
+                       f"grams, thc_percent, menu_price, base_price, out_the_door, "
+                       f"unit_basis, unit_price, percent_off, market_percentile, "
+                       f"score, score_reasons, promo_text, drive_minutes, url "
+                       f"FROM offers WHERE run_id=? {where} "
+                       f"ORDER BY score DESC LIMIT ?")
+                return [dict(r) for r in conn.execute(
+                    sql, (run_id, *params, limit)).fetchall()]
+
+            snapshot = {
+                "generated_at": datetime.datetime.now(
+                    datetime.timezone.utc).isoformat(timespec="seconds"),
+                "anchor": settings.anchor,
+                "drive_minutes": settings.drive_minutes,
+                "tax_multiplier": round(settings.tax.multiplier, 5),
+                "run": {k: run[k] for k in
+                        ("id", "finished_at", "stores_ok", "stores_failed", "offer_count")},
+                "stores": store_rows,
+                # Vapes first -- the product this exists for.
+                "vapes": top("AND category='vape'", (), 60),
+                "vapes_by_unit_price": [dict(r) for r in conn.execute(
+                    "SELECT dispensary_name, name, size_text, grams, out_the_door, "
+                    "unit_price, percent_off, drive_minutes FROM offers "
+                    "WHERE run_id=? AND category='vape' AND unit_price IS NOT NULL "
+                    "ORDER BY unit_price ASC LIMIT 30", (run_id,)).fetchall()],
+                "best_overall": top("", (), 40),
+            }
+
+        out = _pl.Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(snapshot, indent=2, default=str) + "\n")
+        print(f"wrote {out} — {len(snapshot['vapes'])} vapes, "
+              f"{run['offer_count']} offers from {run['stores_ok']} stores")
         return 0
 
     if args.cmd == "ask":
