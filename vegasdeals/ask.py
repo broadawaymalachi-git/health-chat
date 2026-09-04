@@ -23,9 +23,11 @@ class DealQuery(BaseModel):
     """Structured form of whatever the user asked."""
 
     categories: list[str] = Field(
-        default_factory=list,
+        default_factory=lambda: ["vape"],
         description=f"Product categories to include. Choose from {CATEGORIES}. "
-                    "Empty means every category.",
+                    "Defaults to ['vape'] -- disposable vapes are the "
+                    "product this is for. Only widen it if the user names "
+                    "something else.",
     )
     text: str | None = Field(
         None, description="Free-text match on product or brand name, e.g. a strain "
