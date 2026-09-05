@@ -101,7 +101,7 @@
     "lon": -115.110858176794,
     "drive_minutes": 7.7,
     "enabled": true,
-    "notes": ""
+    "notes": "unreachable: URLError"
   },
   {
     "id": "deeproots",
