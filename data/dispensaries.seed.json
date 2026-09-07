@@ -192,7 +192,7 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: HTTPError"
+    "notes": "unreachable: URLError"
   },
   {
     "id": "thedispensary",
