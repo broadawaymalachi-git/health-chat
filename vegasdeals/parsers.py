@@ -296,3 +296,68 @@ def offers_from_payloads(
                     url=url if (url or "").startswith("http") else None,
                 ))
     return offers
+
+
+# Menu-URL discovery -------------------------------------------------------
+#
+# Several stores load a loyalty or marketing platform (Alpine IQ, Carrot) on
+# the page we scrape, and that platform's own JSON carries the address of the
+# real menu -- fields like onlineShopURL, embeddedURL, ecomMenuUrl. We were
+# throwing that away and reporting "no menu data". Mining it turns a dead
+# store into a working one without anybody hand-maintaining a URL list.
+
+MENU_URL_KEYS = (
+    "onlineshopurl", "embeddedurl", "embeddedmedurl", "menuurl", "ecommenuurl",
+    "ecommenu", "shopurl", "customurl", "menulink", "orderurl", "storeurl",
+    "dutchieurl", "janeurl", "weedmapsurl", "iframeurl", "menu_url", "url",
+)
+
+MENU_URL_HINTS = re.compile(
+    r"(dutchie\.com/(embedded-menu|dispensary)|iheartjane\.com/(embed|stores)|"
+    r"weedmaps\.com/(dispensaries|deliveries)|leafly\.com/(dispensary|embed)|"
+    r"tymber\.io|sweed\.menu|dispenseapp\.com|/menu|/shop|/order)",
+    re.I,
+)
+
+_URL_RE = re.compile(r"https?://[^\s\"'<>\\]{8,300}")
+
+
+def discover_menu_urls(payloads: list[dict[str, Any]], limit: int = 6) -> list[str]:
+    """Menu URLs hiding inside a store's own captured JSON, best first."""
+    scored: dict[str, int] = {}
+
+    def consider(url: str, weight: int) -> None:
+        url = url.strip().rstrip(",;)")
+        if not url.startswith("http") or len(url) > 300:
+            return
+        if any(bad in url.lower() for bad in (
+                ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".css", ".js",
+                ".woff", ".ico", ".mp4", "google", "facebook", "gtag", "sentry",
+                "segment", "hotjar", "doubleclick")):
+            return
+        bonus = 4 if MENU_URL_HINTS.search(url) else 0
+        scored[url] = max(scored.get(url, 0), weight + bonus)
+
+    def walk_any(node: Any, depth: int = 0) -> None:
+        if depth > 10:
+            return
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if isinstance(v, str) and _norm(k) in MENU_URL_KEYS:
+                    consider(v, 5)
+                walk_any(v, depth + 1)
+        elif isinstance(node, list):
+            for item in node[:40]:
+                walk_any(item, depth + 1)
+        elif isinstance(node, str) and node.startswith("http"):
+            if MENU_URL_HINTS.search(node):
+                consider(node, 1)
+
+    for payload in payloads:
+        walk_any(payload.get("body"))
+        # Vendor menu hosts sometimes only appear in a request URL we captured.
+        url = payload.get("url", "")
+        if MENU_URL_HINTS.search(url):
+            consider(url, 0)
+
+    return [u for u, _ in sorted(scored.items(), key=lambda kv: -kv[1])][:limit]

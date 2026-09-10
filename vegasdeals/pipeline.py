@@ -13,12 +13,12 @@ from .config import Settings, DATA_DIR, DB_PATH, SEED_PATH, STORAGE_STATE_DIR
 from .geo import Point, drive_minutes_matrix, geocode
 from .harvest import harvest
 from .normalize import Offer, score_offers
-from .parsers import offers_from_payloads
+from .parsers import discover_menu_urls, offers_from_payloads
 
 log = logging.getLogger(__name__)
 
 # How many candidate URLs to try per store before giving up on it.
-MAX_URL_ROUNDS = 4
+MAX_URL_ROUNDS = 6   # extra rounds for URLs discovered mid-run
 
 
 def _save_sample(store_id: str, cap) -> None:
@@ -140,12 +140,21 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
     # case to a single page load per store while still rescuing the ones whose
     # menu isn't where we first guessed.
     pending = {s.id: list(s.candidate_urls) for s in targets}
+    tried: dict[str, set[str]] = {s.id: set() for s in targets}
     found: dict[str, list[Offer]] = {}
     last_error: dict[str, str | None] = {s.id: None for s in targets}
 
     for round_no in range(MAX_URL_ROUNDS):
-        batch = [(sid, urls.pop(0)) for sid, urls in pending.items()
-                 if urls and sid not in found]
+        batch = []
+        for sid, urls in pending.items():
+            if sid in found:
+                continue
+            while urls:
+                url = urls.pop(0)
+                if url not in tried[sid]:
+                    tried[sid].add(url)
+                    batch.append((sid, url))
+                    break
         if not batch:
             break
         log.info("round %d: trying %d store URLs", round_no + 1, len(batch))
@@ -172,6 +181,11 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
                 log.info("%-28s %4d offers via %s", store.name, len(offers), cap.url)
             else:
                 last_error[store.id] = cap.error or "loaded but no offers parsed"
+                # The page may have loaded a loyalty or marketing platform whose
+                # JSON names the real menu. Follow those before giving up.
+                for url in reversed(discover_menu_urls(cap.payloads)):
+                    if url not in tried[store.id]:
+                        pending[store.id].insert(0, url)
 
     for store in targets:
         offers = found.get(store.id, [])
