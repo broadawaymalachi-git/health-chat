@@ -66,13 +66,23 @@ def diagnose_store(path: Path) -> dict:
         "error": data.get("error"),
         "payload_count": data.get("payload_count", 0),
         "sampled": len(payloads),
+        "status": data.get("status"),
+        "gate_found": data.get("gate_found"),
+        "reloaded": data.get("reloaded"),
+        "blocked_hint": data.get("blocked_hint"),
+        "html_len": data.get("html_len"),
     }
 
     if data.get("error"):
         report["verdict"] = "page failed to load"
         return report
     if not payloads:
-        report["verdict"] = "page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)"
+        if data.get("blocked_hint"):
+            report["verdict"] = f"blocked before the menu loaded ({data['blocked_hint']})"
+        elif data.get("gate_found"):
+            report["verdict"] = "age gate cleared and page reloaded, but still no JSON -- menu is server-rendered or behind another step"
+        else:
+            report["verdict"] = "no age gate found and no JSON fetched -- menu is server-rendered, or the page is a shell"
         return report
 
     hosts = Counter()

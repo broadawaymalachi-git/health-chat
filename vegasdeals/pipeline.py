@@ -33,6 +33,9 @@ def _save_sample(store_id: str, cap) -> None:
     try:
         text = json.dumps(
             {"store": store_id, "page": cap.url, "error": cap.error,
+             "status": cap.status, "gate_found": cap.gate_found,
+             "reloaded": cap.reloaded, "blocked_hint": cap.blocked_hint,
+             "html_len": len(cap.html or ""),
              "payload_count": len(cap.payloads), "payloads": sample},
             default=str)[:2_000_000]
         (out / f"{store_id}.json").write_text(text)

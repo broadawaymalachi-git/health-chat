@@ -64,10 +64,44 @@ class Capture:
     payloads: list[dict[str, Any]] = field(default_factory=list)
     html: str = ""
     error: str | None = None
+    gate_found: bool = False      # a 21+ gate was detected and clicked
+    reloaded: bool = False        # the page was reloaded after clearing it
+    status: int | None = None     # HTTP status of the main document
+    blocked_hint: str | None = None
 
     @property
     def ok(self) -> bool:
         return self.error is None and (bool(self.payloads) or bool(self.html))
+
+
+# Signatures of a bot check or a hard block, which look exactly like an empty
+# page from the outside but need a completely different remedy.
+BLOCK_SIGNATURES: list[tuple[str, str]] = [
+    ("just a moment", "Cloudflare challenge"),
+    ("checking your browser", "Cloudflare challenge"),
+    ("cf-browser-verification", "Cloudflare challenge"),
+    ("attention required", "Cloudflare block"),
+    ("access denied", "access denied"),
+    ("403 forbidden", "403 forbidden"),
+    ("captcha", "CAPTCHA"),
+    ("are you a robot", "bot check"),
+    ("enable javascript", "JS-gated shell"),
+    ("request blocked", "request blocked"),
+    ("unusual traffic", "rate limited"),
+]
+
+
+def _detect_block(html: str, status: int | None) -> str | None:
+    """Name the wall, when there is one."""
+    if status and status >= 400:
+        return f"HTTP {status}"
+    low = (html or "")[:20000].lower()
+    for needle, label in BLOCK_SIGNATURES:
+        if needle in low:
+            return label
+    if len(html or "") < 1200:
+        return "near-empty document"
+    return None
 
 
 async def _fill_birthdate(frame) -> bool:
@@ -194,9 +228,13 @@ async def capture_menu(
     page.on("response", on_response)
 
     try:
-        await page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+        response = await page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+        if response is not None:
+            cap.status = response.status
         await page.wait_for_timeout(1500)
-        if await _dismiss_age_gate(page):
+        cap.gate_found = await _dismiss_age_gate(page)
+        if cap.gate_found:
+            cap.reloaded = True
             # Clicking "yes" does not re-issue the menu request -- the app never
             # mounted, so its fetches never fired. Reload now that the gate flag
             # is set, and capture the requests the second load actually makes.
@@ -212,6 +250,7 @@ async def capture_menu(
 
         await page.wait_for_timeout(settle_ms)
         cap.html = await page.content()
+        cap.blocked_hint = _detect_block(cap.html, cap.status)
     except Exception as exc:  # a dead menu shouldn't kill the run
         cap.error = f"{type(exc).__name__}: {exc}"
         log.warning("capture failed for %s (%s): %s", dispensary_id, url, cap.error)
