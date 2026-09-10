@@ -1,31 +1,37 @@
 {
-  "generated_at": "2026-09-10T03:16:10+00:00",
+  "generated_at": "2026-09-10T03:34:47+00:00",
   "anchor": "89148",
   "drive_minutes": 20,
   "tax_multiplier": 1.21375,
   "run": {
     "id": 1,
-    "finished_at": "2026-09-10T03:16:08+00:00",
-    "stores_ok": 3,
-    "stores_failed": 20,
-    "offer_count": 879
+    "finished_at": "2026-09-10T03:34:46+00:00",
+    "stores_ok": 4,
+    "stores_failed": 19,
+    "offer_count": 903
   },
   "stores": [
     {
       "dispensary_id": "zenleaf",
-      "last_ok": "2026-09-10T03:16:08+00:00",
+      "last_ok": "2026-09-10T03:34:46+00:00",
       "last_error": null,
       "last_offers": 827
     },
     {
       "dispensary_id": "inyo",
-      "last_ok": "2026-09-10T03:16:08+00:00",
+      "last_ok": "2026-09-10T03:34:46+00:00",
       "last_error": null,
       "last_offers": 46
     },
     {
+      "dispensary_id": "oasis",
+      "last_ok": "2026-09-10T03:34:46+00:00",
+      "last_error": null,
+      "last_offers": 24
+    },
+    {
       "dispensary_id": "leafly_deals",
-      "last_ok": "2026-09-10T03:16:08+00:00",
+      "last_ok": "2026-09-10T03:34:46+00:00",
       "last_error": null,
       "last_offers": 6
     },
@@ -37,12 +43,6 @@
     },
     {
       "dispensary_id": "thesource",
-      "last_ok": null,
-      "last_error": "loaded but no offers parsed",
-      "last_offers": 0
-    },
-    {
-      "dispensary_id": "oasis",
       "last_ok": null,
       "last_error": "loaded but no offers parsed",
       "last_offers": 0
@@ -1664,6 +1664,36 @@
       "drive_minutes": null
     },
     {
+      "dispensary_name": "Oasis Cannabis",
+      "name": "Atomic Pop (2g)",
+      "size_text": null,
+      "grams": 2.0,
+      "out_the_door": 54.62,
+      "unit_price": 27.31,
+      "percent_off": null,
+      "drive_minutes": 3.2
+    },
+    {
+      "dispensary_name": "Oasis Cannabis",
+      "name": "Pink Lemonade (2g)",
+      "size_text": null,
+      "grams": 2.0,
+      "out_the_door": 54.62,
+      "unit_price": 27.31,
+      "percent_off": null,
+      "drive_minutes": 3.2
+    },
+    {
+      "dispensary_name": "Oasis Cannabis",
+      "name": "Watermelon Mojito (2g)",
+      "size_text": null,
+      "grams": 2.0,
+      "out_the_door": 54.62,
+      "unit_price": 27.31,
+      "percent_off": null,
+      "drive_minutes": 3.2
+    },
+    {
       "dispensary_name": "Zen Leaf",
       "name": "Northern Lights",
       "size_text": null,
@@ -1676,36 +1706,6 @@
     {
       "dispensary_name": "Zen Leaf",
       "name": "Super Lemon Haze",
-      "size_text": null,
-      "grams": null,
-      "out_the_door": 29.49,
-      "unit_price": 29.49,
-      "percent_off": 40.0,
-      "drive_minutes": null
-    },
-    {
-      "dispensary_name": "Zen Leaf",
-      "name": "Granddaddy Purple",
-      "size_text": null,
-      "grams": null,
-      "out_the_door": 29.49,
-      "unit_price": 29.49,
-      "percent_off": 40.0,
-      "drive_minutes": null
-    },
-    {
-      "dispensary_name": "Zen Leaf",
-      "name": "Pineapple Express",
-      "size_text": null,
-      "grams": null,
-      "out_the_door": 29.49,
-      "unit_price": 29.49,
-      "percent_off": 40.0,
-      "drive_minutes": null
-    },
-    {
-      "dispensary_name": "Zen Leaf",
-      "name": "Blue Dream",
       "size_text": null,
       "grams": null,
       "out_the_door": 29.49,
