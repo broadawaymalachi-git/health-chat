@@ -13,7 +13,8 @@ from .config import Settings, DATA_DIR, DB_PATH, SEED_PATH, STORAGE_STATE_DIR
 from .geo import Point, drive_minutes_matrix, geocode
 from .harvest import harvest
 from .normalize import Offer, score_offers
-from .parsers import discover_menu_urls, offers_from_payloads
+from .parsers import (discover_menu_urls, offers_from_payloads,
+                      specials_from_payloads)
 
 log = logging.getLogger(__name__)
 
@@ -135,6 +136,7 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
 
     by_id = {s.id: s for s in targets}
     all_offers: list[Offer] = []
+    all_specials: list[dict] = []
     ok = failed = 0
     statuses: list[tuple[str, bool, int, str | None]] = []
 
@@ -145,6 +147,7 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
     pending = {s.id: list(s.candidate_urls) for s in targets}
     tried: dict[str, set[str]] = {s.id: set() for s in targets}
     found: dict[str, list[Offer]] = {}
+    specials: dict[str, list[dict]] = {}
     last_error: dict[str, str | None] = {s.id: None for s in targets}
 
     for round_no in range(MAX_URL_ROUNDS):
@@ -195,13 +198,17 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
 
     for store in targets:
         offers = found.get(store.id, [])
+        promos = specials.get(store.id, [])
         all_offers.extend(offers)
-        if offers:
+        all_specials.extend(promos)
+        if offers or promos:
             ok += 1
         else:
             failed += 1
-        statuses.append((store.id, bool(offers), len(offers),
-                         None if offers else last_error[store.id]))
+        note = None if (offers or promos) else last_error[store.id]
+        if not offers and promos:
+            note = f"{len(promos)} specials, no priced products"
+        statuses.append((store.id, bool(offers or promos), len(offers), note))
 
     ds.save(seed_path, stores)
 
@@ -210,6 +217,7 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
     with db.connect(db_path) as conn:
         run_id = db.start_run(conn)
         db.insert_offers(conn, run_id, all_offers)
+        db.insert_specials(conn, run_id, all_specials)
         for sid, succeeded, count, err in statuses:
             db.record_status(conn, sid, succeeded, count, err)
         db.finish_run(conn, run_id, ok, failed, len(all_offers))
@@ -217,6 +225,7 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
     return {
         "run_id": run_id, "stores_ok": ok, "stores_failed": failed,
         "offers": len(all_offers),
+        "specials": len(all_specials),
         "top": [
             {"name": o.name, "store": o.dispensary_name, "price": o.out_the_door,
              "unit_price": o.unit_price, "why": o.score_reasons}

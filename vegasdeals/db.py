@@ -47,6 +47,19 @@ CREATE TABLE IF NOT EXISTS offers (
 CREATE INDEX IF NOT EXISTS idx_offers_run ON offers(run_id);
 CREATE INDEX IF NOT EXISTS idx_offers_cat ON offers(run_id, category);
 CREATE INDEX IF NOT EXISTS idx_offers_score ON offers(run_id, score DESC);
+CREATE TABLE IF NOT EXISTS specials (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id         INTEGER NOT NULL REFERENCES runs(id),
+    dispensary_id  TEXT NOT NULL,
+    dispensary_name TEXT NOT NULL,
+    title          TEXT NOT NULL,
+    description    TEXT,
+    percent_off    REAL,
+    dollars_off    REAL,
+    target_price   REAL,
+    discount_type  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_specials_run ON specials(run_id);
 CREATE TABLE IF NOT EXISTS store_status (
     dispensary_id TEXT PRIMARY KEY,
     last_ok       TEXT,
@@ -98,6 +111,17 @@ def insert_offers(conn, run_id: int, offers: list[Offer]) -> None:
           o.out_the_door, o.unit_basis, o.unit_price, o.percent_off, o.absolute_savings,
           o.market_percentile, o.score, " · ".join(o.score_reasons), o.promo_text,
           o.drive_minutes, o.url) for o in offers],
+    )
+
+
+def insert_specials(conn, run_id: int, specials: list[dict]) -> None:
+    conn.executemany(
+        """INSERT INTO specials (run_id, dispensary_id, dispensary_name, title,
+           description, percent_off, dollars_off, target_price, discount_type)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        [(run_id, s["dispensary_id"], s["dispensary_name"], s["title"],
+          s.get("description"), s.get("percent_off"), s.get("dollars_off"),
+          s.get("target_price"), s.get("discount_type")) for s in specials],
     )
 
 

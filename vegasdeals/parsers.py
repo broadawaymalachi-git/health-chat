@@ -379,3 +379,84 @@ def discover_menu_urls(payloads: list[dict[str, Any]], limit: int = 6) -> list[s
             consider(url, 0)
 
     return [u for u, _ in sorted(scored.items(), key=lambda kv: -kv[1])][:limit]
+
+
+# Specials -----------------------------------------------------------------
+#
+# Menus publish two different things and we were only reading one. Alongside
+# priced products, platforms expose a specials/promotions feed: "2 for $45 on
+# selected 7g Flower", "30% off vapes", "$25 eighths". Those objects carry a
+# title and a discount but no price of their own, so the product parser
+# discarded every one of them -- which is perverse in a tool whose entire job
+# is finding deals.
+
+DISCOUNT_KEYS = ("discountpercent", "discount_percent", "percentoff", "percent_off",
+                 "discountamount", "discount_amount", "discountdollaramount",
+                 "discount_dollar_amount", "dollaroff", "amountoff",
+                 "discounttargetprice", "discount_target_price", "specialprice")
+DESCRIPTION_KEYS = ("description", "subtitle", "details", "terms", "summary",
+                    "fine_print", "finePrint", "body")
+TITLE_KEYS = ("title", "name", "displayname", "special_name", "specialname",
+              "promo_name", "label", "headline")
+
+
+def _looks_like_special(node: Any) -> bool:
+    if not isinstance(node, dict) or len(node) < 3:
+        return False
+    if _text(_get(node, TITLE_KEYS)) is None:
+        return False
+    if _get(node, DISCOUNT_KEYS) in (None, "", 0, [], {}):
+        return False
+    # An expired or switched-off promotion is not a deal.
+    for key in ("enabled", "active", "is_active", "isEnabled"):
+        value = _get(node, (key,))
+        if value is False:
+            return False
+    return True
+
+
+def specials_from_payloads(
+    payloads: list[dict[str, Any]],
+    dispensary_id: str,
+    dispensary_name: str,
+) -> list[dict[str, Any]]:
+    """Promotions a store is advertising, whether or not they name a price."""
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+
+    def visit(node: Any, depth: int = 0) -> None:
+        if depth > 12:
+            return
+        if isinstance(node, dict):
+            if _looks_like_special(node):
+                title = _text(_get(node, TITLE_KEYS)) or ""
+                key = (dispensary_id, title.lower())
+                if key not in seen and len(title) < 160:
+                    seen.add(key)
+                    percent = _percent(_get(node, ("discount_percent",
+                                                  "discountPercent", "percent_off")))
+                    dollars = _price(_get(node, ("discount_dollar_amount",
+                                                 "discount_amount", "amount_off")))
+                    target = _price(_get(node, ("discount_target_price",
+                                                "special_price")))
+                    out.append({
+                        "dispensary_id": dispensary_id,
+                        "dispensary_name": dispensary_name,
+                        "title": title,
+                        "description": (_text(_get(node, DESCRIPTION_KEYS)) or "")[:400],
+                        "percent_off": percent,
+                        "dollars_off": dollars,
+                        "target_price": target,
+                        "discount_type": _text(_get(node, ("discount_type",
+                                                          "discountType", "type"))),
+                    })
+                return
+            for v in node.values():
+                visit(v, depth + 1)
+        elif isinstance(node, list):
+            for item in node[:200]:
+                visit(item, depth + 1)
+
+    for payload in payloads:
+        visit(payload.get("body"))
+    return out

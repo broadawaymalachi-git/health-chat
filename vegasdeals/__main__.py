@@ -178,13 +178,19 @@ def main(argv: list[str] | None = None) -> int:
                     "WHERE run_id=? AND category='vape' AND unit_price IS NOT NULL "
                     "ORDER BY unit_price ASC LIMIT 30", (run_id,)).fetchall()],
                 "best_overall": top("", (), 40),
+                "specials": [dict(r) for r in conn.execute(
+                    "SELECT dispensary_name, title, description, percent_off, "
+                    "dollars_off, target_price, discount_type FROM specials "
+                    "WHERE run_id=? ORDER BY COALESCE(percent_off,0) DESC LIMIT 120",
+                    (run_id,)).fetchall()],
             }
 
         out = _pl.Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(snapshot, indent=2, default=str) + "\n")
         print(f"wrote {out} — {len(snapshot['vapes'])} vapes, "
-              f"{run['offer_count']} offers from {run['stores_ok']} stores")
+              f"{run['offer_count']} offers, {len(snapshot['specials'])} specials "
+              f"from {run['stores_ok']} stores")
         return 0
 
     if args.cmd == "ask":
