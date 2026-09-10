@@ -11,6 +11,7 @@ and the sanity bounds in `_price` are what keep that noise out.
 """
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Iterator
 
@@ -338,6 +339,45 @@ MENU_URL_HINTS = re.compile(
 )
 
 _URL_RE = re.compile(r"https?://[^\s\"'<>\\]{8,300}")
+
+# A captured request to api.iheartjane.com/v1/stores/1234/... tells us the store
+# id even when the request itself only returned configuration. That id is enough
+# to address the menu directly, which is where the products actually are.
+JANE_STORE_RE = re.compile(r"iheartjane\.com/v\d+/stores/(\d+)", re.I)
+DUTCHIE_SLUG_RE = re.compile(r"dutchie\.com/(?:embedded-menu|dispensary)/([\w-]{3,80})", re.I)
+
+
+def platform_menu_urls(payloads: list[dict[str, Any]]) -> list[str]:
+    """Menu URLs derivable from platform identifiers seen in captured traffic.
+
+    Several stores load their menu vendor's *config* endpoints without ever
+    fetching products -- the page shows a store record, purchase limits and
+    menu row names ("Daily Deals", "Best Selling") but no items. Knowing the
+    vendor's store id lets us go straight at the menu instead.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def add(url: str) -> None:
+        if url not in seen:
+            seen.add(url)
+            out.append(url)
+
+    blobs: list[str] = []
+    for payload in payloads:
+        blobs.append(payload.get("url", "") or "")
+        try:
+            blobs.append(json.dumps(payload.get("body"), default=str)[:400_000])
+        except Exception:
+            continue
+
+    for blob in blobs:
+        for sid in dict.fromkeys(JANE_STORE_RE.findall(blob)):
+            add(f"https://www.iheartjane.com/embed/stores/{sid}/menu")
+            add(f"https://www.iheartjane.com/embed/stores/{sid}/menu/vapes")
+        for slug in dict.fromkeys(DUTCHIE_SLUG_RE.findall(blob)):
+            add(f"https://dutchie.com/embedded-menu/{slug}/products")
+    return out[:8]
 
 
 def discover_menu_urls(payloads: list[dict[str, Any]], limit: int = 6) -> list[str]:

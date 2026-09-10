@@ -14,7 +14,7 @@ from .geo import Point, drive_minutes_matrix, geocode
 from .harvest import harvest
 from .normalize import Offer, score_offers
 from .parsers import (discover_menu_urls, offers_from_payloads,
-                      specials_from_payloads)
+                      platform_menu_urls, specials_from_payloads)
 
 log = logging.getLogger(__name__)
 
@@ -192,7 +192,13 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
                 last_error[store.id] = cap.error or "loaded but no offers parsed"
                 # The page may have loaded a loyalty or marketing platform whose
                 # JSON names the real menu. Follow those before giving up.
+                # Vendor-derived URLs first: a Jane store id or Dutchie slug
+                # seen in the traffic addresses the menu far more reliably than
+                # a URL guessed from the store's name.
                 for url in reversed(discover_menu_urls(cap.payloads)):
+                    if url not in tried[store.id]:
+                        pending[store.id].insert(0, url)
+                for url in reversed(platform_menu_urls(cap.payloads)):
                     if url not in tried[store.id]:
                         pending[store.id].insert(0, url)
 
