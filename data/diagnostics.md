@@ -1,6 +1,6 @@
 # Why each store produced no offers
 
-## beyondhello — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## beyondhello — blocked before the menu loaded (near-empty document)
 - page: https://beyond-hello.com/deals
 - json payloads: 0 (hosts: none)
 
@@ -48,7 +48,7 @@ Call log:
 - named, unpriced: 'INTEGRA BOOST 2 WAY HUMIDITY CONTROL PACK' keys=['batchId', 'batchName', 'brand', 'cacheTimestamp', 'carrotSubcategory', 'cashPriceRange', 'categoryName', 'categorySlug', 'description', 'descriptionAndroid', 'descriptionIos', 'effectTags', 'embedding', 'id']
 - paths: results[].hits[].document.cashPriceRange, results[].hits[].document.option1Price, results[].hits[].document.unitWeight, results[].hits[].document.weights, pickup:min_price, minimum_item_price, surfside:product_list_zone_id, system:in_store_menu_dark_mode, system:in_store_menu_queue_image, system:in_store_menu_rotation, system:in_store_menu_background, refresh_product_recommendations
 
-## jardin — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## jardin — blocked before the menu loaded (HTTP 404)
 - page: https://jardincannabis.com/products
 - json payloads: 0 (hosts: none)
 
@@ -65,7 +65,7 @@ Call log:
 - priced, unnamed: $10.0 keys=['cartQuantity', 'cartUnit', 'cbdPips', 'deal', 'dealId', 'displayQuantity', 'externalKey', 'id', 'medical', 'normalizedQuantityLabel', 'offers', 'price', 'pricePerUnit', 'quantity']
 - paths: pageProps.menuData.availableFilters[].values[].badge, pageProps.menuData.availableFilters[].values[].chip, pageProps.menuData.availableFilters[].values[].count, pageProps.menuData.availableFilters[].values[].label, pageProps.menuData.availableFilters[].values[].sortOrder, pageProps.menuData.availableFilters[].values[].type, pageProps.menuData.availableFilters[].values[].value, pageProps.menuData.availableFilters[].label, pageProps.menuData.availableFilters[].name, pageProps.menuData.availableFilters[].showCount, pageProps.menuData.availableFilters[].sortOrder, pageProps.menuData.availableFilters[].type
 
-## nevadamade — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## nevadamade — blocked before the menu loaded (HTTP 403)
 - page: https://nevadamademarijuana.com/products
 - json payloads: 0 (hosts: none)
 
@@ -73,7 +73,7 @@ Call log:
 - page: https://oasiscannabis.com/products
 - json payloads: 7 (hosts: {'otlp-http-production.shopifysvc.com': 6, 'oasiscannabis.com': 1})
 
-## planet13 — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## planet13 — blocked before the menu loaded (HTTP 403)
 - page: https://planet13lasvegas.com/products
 - json payloads: 0 (hosts: none)
 
@@ -81,23 +81,23 @@ Call log:
 - page: https://reefdispensaries.com/products
 - json payloads: 1 (hosts: {'curaleaf.com': 1})
 
-## rise — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## rise — blocked before the menu loaded (HTTP 403)
 - page: https://risecannabis.com/products
 - json payloads: 0 (hosts: none)
 
-## sanctuary — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## sanctuary — blocked before the menu loaded (HTTP 404)
 - page: https://sanctuarynv.com/products
 - json payloads: 0 (hosts: none)
 
-## shango — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## shango — blocked before the menu loaded (HTTP 404)
 - page: https://goshango.com/deals
 - json payloads: 0 (hosts: none)
 
-## silversage — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## silversage — blocked before the menu loaded (HTTP 403)
 - page: https://www.sswlv.com/products
 - json payloads: 0 (hosts: none)
 
-## silverstate — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
+## silverstate — blocked before the menu loaded (HTTP 404)
 - page: https://silverstaterelief.com/deals
 - json payloads: 0 (hosts: none)
 
@@ -119,17 +119,17 @@ Call log:
 
 ## wm_dispos — named things present but no price the parser recognizes -- PARSER GAP
 - page: https://weedmaps.com/dispensaries/in/united-states/nevada/las-vegas
-- json payloads: 41 (hosts: {'browser-intake-datadoghq.com': 6, 'api-g.weedmaps.com': 1, 'sdk.iad-03.braze.com': 1})
+- json payloads: 40 (hosts: {'browser-intake-datadoghq.com': 6, 'api-g.weedmaps.com': 1, 'sdk.iad-03.braze.com': 1})
 - named, unpriced: 'Vape pens' keys=['avatar_image_url', 'name', 'slug', 'subcategories', 'total_products_count', 'uuid']
 - named, unpriced: 'Disposable' keys=['avatar_image_url', 'name', 'slug', 'subcategories', 'total_products_count', 'uuid']
 - named, unpriced: 'Cartridge' keys=['avatar_image_url', 'name', 'slug', 'subcategories', 'total_products_count', 'uuid']
 - named, unpriced: 'Pods' keys=['avatar_image_url', 'name', 'slug', 'subcategories', 'total_products_count', 'uuid']
 - paths: data.facets.categories[].subcategories[].total_products_count, data.facets.client_categories[].subcategories[].total_products_count, data.facets.tag_groups[].tags[].total_products_count, data.facets.categories[].total_products_count, data.facets.price_weights.gram[].units, data.facets.price_weights.gram[].total_products_count, data.facets.price_weights.gram[].label, data.facets.price_weights.gram[].product_count_storefront, data.facets.price_weights.gram[].product_count_delivery, data.facets.client_categories[].total_products_count, data.facets.price_weights.ounce[].units, data.facets.price_weights.ounce[].total_products_count
 
-## zenleaf — 995 product-shaped nodes present -- parser should have caught these
+## zenleaf — 1154 product-shaped nodes present -- parser should have caught these
 - page: https://zenleafdispensaries.com/menu
 - json payloads: 12 (hosts: {'zenleafdispensaries.com': 4, 'data.zenleafdispensaries.com': 4})
-- product-shaped nodes: 995
+- product-shaped nodes: 1154
 - named, unpriced: 'Eastern Time (ET)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
 - named, unpriced: 'Mountain Time (MT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
 - named, unpriced: 'Central Time (CT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
