@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,6 +37,12 @@ AGE_GATE_PATTERNS = [
 ]
 
 # Pre-seeding these saves a click on most menus and is what the page sets anyway.
+AGE_GATE_COOKIE_NAMES = [
+    "age_verified", "ageVerified", "age_gate", "ageGate", "is_age_verified",
+    "over21", "isOver21", "age_gate_passed", "tymber-age-gate", "dutchie_age",
+    "jane_age_verified", "wm_age_gate", "leafly_age_gate", "_age_verified",
+]
+
 AGE_GATE_STORAGE = {
     "age_verified": "true", "ageVerified": "true", "is_age_verified": "true",
     "over21": "true", "isOver21": "true", "age_gate_passed": "true",
@@ -63,29 +70,88 @@ class Capture:
         return self.error is None and (bool(self.payloads) or bool(self.html))
 
 
-async def _dismiss_age_gate(page) -> bool:
-    """Click through the 21+ interstitial if one is blocking the menu."""
+async def _fill_birthdate(frame) -> bool:
+    """Some gates want a date of birth instead of a yes/no button."""
+    filled = False
+    try:
+        for sel, value in (("input[name*='year' i]", "1990"),
+                           ("input[name*='month' i]", "01"),
+                           ("input[name*='day' i]", "01"),
+                           ("input[type='date']", "1990-01-01"),
+                           ("input[placeholder*='YYYY' i]", "1990"),
+                           ("input[placeholder*='MM' i]", "01"),
+                           ("input[placeholder*='DD' i]", "01")):
+            el = frame.locator(sel).first
+            if await el.count() and await el.is_visible(timeout=400):
+                await el.fill(value, timeout=1500)
+                filled = True
+    except Exception:
+        pass
+    return filled
+
+
+async def _click_gate_in(frame) -> bool:
+    """Try every way a 21+ gate exposes its confirm control, in one frame."""
     for pattern in AGE_GATE_PATTERNS:
         for role in ("button", "link"):
             try:
-                el = page.get_by_role(role, name=pattern).first
-                if await el.count() and await el.is_visible(timeout=800):
+                el = frame.get_by_role(role, name=pattern).first
+                if await el.count() and await el.is_visible(timeout=500):
                     await el.click(timeout=2500)
-                    await page.wait_for_timeout(1200)
                     return True
             except Exception:
                 continue
-    # Some gates are plain divs with no accessible role.
-    for text in ("Yes", "I'm 21+", "I am 21+", "Enter", "Continue"):
+    # Plain divs and spans with no accessible role.
+    for text in ("Yes", "YES", "I'm 21+", "I am 21+", "I am over 21",
+                 "Enter", "ENTER", "Continue", "Confirm", "Agree", "21+"):
         try:
-            el = page.get_by_text(text, exact=True).first
-            if await el.count() and await el.is_visible(timeout=500):
+            el = frame.get_by_text(text, exact=True).first
+            if await el.count() and await el.is_visible(timeout=400):
                 await el.click(timeout=2000)
-                await page.wait_for_timeout(1200)
+                return True
+        except Exception:
+            continue
+    # Last resort: attribute hints the copy doesn't reveal.
+    for sel in ("[id*='age' i] button", "[class*='age' i] button",
+                "[data-testid*='age' i]", "button[class*='confirm' i]",
+                "[id*='verify' i] button", "[class*='gate' i] button"):
+        try:
+            el = frame.locator(sel).first
+            if await el.count() and await el.is_visible(timeout=400):
+                await el.click(timeout=2000)
                 return True
         except Exception:
             continue
     return False
+
+
+async def _dismiss_age_gate(page) -> bool:
+    """Clear the 21+ interstitial, wherever it is and whenever it shows up.
+
+    Gates appear on the top page and inside embed iframes, sometimes a second
+    or two after load, and some ask for a birthdate rather than yes/no. Missing
+    any of those leaves the menu unmounted and the page looks simply empty.
+    """
+    dismissed = False
+    for attempt in range(3):
+        frames = [page] + list(page.frames)
+        for frame in frames:
+            try:
+                if await _click_gate_in(frame):
+                    dismissed = True
+                    await page.wait_for_timeout(1200)
+                    break
+                if await _fill_birthdate(frame):
+                    if await _click_gate_in(frame):
+                        dismissed = True
+                        await page.wait_for_timeout(1200)
+                        break
+            except Exception:
+                continue
+        if dismissed:
+            break
+        await page.wait_for_timeout(1500)   # a late-rendering gate
+    return dismissed
 
 
 async def capture_menu(
@@ -104,10 +170,22 @@ async def capture_menu(
         try:
             if not JSON_HINT.search(response.url):
                 return
-            ctype = (response.headers or {}).get("content-type", "")
-            if "json" not in ctype.lower():
+            ctype = (response.headers or {}).get("content-type", "").lower()
+            if "json" in ctype:
+                body = await response.json()
+            elif any(x in ctype for x in ("html", "css", "image", "font",
+                                          "javascript", "video", "octet-stream")) \
+                    and "octet-stream" not in ctype:
                 return
-            body = await response.json()
+            else:
+                # Menu APIs mislabel their content-type often enough that
+                # trusting the header alone loses real product data. If the URL
+                # looks like an API, try to parse it regardless.
+                text = await response.text()
+                stripped = text.lstrip()[:1]
+                if stripped not in ("{", "["):
+                    return
+                body = json.loads(text)
         except Exception:
             return
         if isinstance(body, (dict, list)):
@@ -118,7 +196,14 @@ async def capture_menu(
     try:
         await page.goto(url, wait_until="domcontentloaded", timeout=45_000)
         await page.wait_for_timeout(1500)
-        await _dismiss_age_gate(page)
+        if await _dismiss_age_gate(page):
+            # Clicking "yes" does not re-issue the menu request -- the app never
+            # mounted, so its fetches never fired. Reload now that the gate flag
+            # is set, and capture the requests the second load actually makes.
+            cap.payloads.clear()
+            await page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+            await page.wait_for_timeout(2000)
+            await _dismiss_age_gate(page)
 
         # Menus lazy-load; scrolling is what actually triggers the product fetches.
         for _ in range(scrolls):
@@ -159,7 +244,13 @@ async def harvest(
         state_path = candidate if candidate.exists() else None
 
     async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=headless)
+        # Honour a preinstalled Chromium when the environment ships one whose
+        # build doesn't match the installed playwright package.
+        launch_kwargs: dict = {"headless": headless}
+        explicit = os.getenv("VD_CHROMIUM_PATH")
+        if explicit and Path(explicit).exists():
+            launch_kwargs["executable_path"] = explicit
+        browser = await pw.chromium.launch(**launch_kwargs)
         context = await browser.new_context(
             storage_state=str(state_path) if state_path else None,
             user_agent=(
@@ -172,10 +263,13 @@ async def harvest(
         )
         # Pre-answer the age gate so most pages never show it.
         await context.add_init_script(
-            "(() => { const v = %s;"
+            "(() => { const v = %s, c = %s;"
             " try { for (const [k, val] of Object.entries(v)) {"
-            "   localStorage.setItem(k, val); sessionStorage.setItem(k, val); } } catch (e) {} })();"
-            % json.dumps(AGE_GATE_STORAGE)
+            "   localStorage.setItem(k, val); sessionStorage.setItem(k, val); } } catch (e) {}"
+            " try { for (const k of c) {"
+            "   document.cookie = k + '=true; path=/; max-age=31536000; SameSite=Lax'; } } catch (e) {}"
+            " })();"
+            % (json.dumps(AGE_GATE_STORAGE), json.dumps(AGE_GATE_COOKIE_NAMES))
         )
 
         async def run_one(did: str, url: str) -> Capture:
