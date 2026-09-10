@@ -7,6 +7,11 @@ not a tool.
 
 ## The parameters (fixed, do not renegotiate)
 
+- **Every price is RECREATIONAL and TAX-INCLUDED. No exceptions.** Never quote a
+  menu/shelf price as if it were the cost. Multiply by **1.21375** (10% NV
+  adult-use excise + 3% Clark County cannabis + 8.375% sales, quoted additively
+  = 21.375%). A $40 sticker is **$48.55**. He is not using a medical card, so
+  the 10% excise always applies. Say "out the door" or "with tax" on the figure.
 - **Product: disposable vapes.** Not carts, not flower, not edibles, unless asked.
 - **Anchor: ZIP 89148** (Spring Valley / southwest, near Durango & the 215).
 - **Mode: delivery to 89148** (Rose Lake St). The drive-time radius is retired —
