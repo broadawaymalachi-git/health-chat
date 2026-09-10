@@ -20,10 +20,10 @@ Call log:
 ## cultivate — named things present but no price the parser recognizes -- PARSER GAP
 - page: https://cultivatelv.com/order-online
 - json payloads: 5 (hosts: {'lab.alpineiq.com': 5})
-- named, unpriced: 'Cultivate Sign Up Form (Updated Aug 2023)' keys=['coMarketing', 'created', 'gearfireWaiverDefSyncedAt', 'id', 'isDefault', 'legacyCreated', 'legacyID', 'name', 'popupWidget', 'sendTextOptIn', 'settingsMap', 'signupFields', 'updated', 'upgraded']
-- named, unpriced: 'Join the Cultivate Garden! Sign up now!' keys=['brandName', 'buttonText', 'enableBrandName', 'enableCoverPhoto', 'enableLogo', 'images', 'pageStyle', 'style', 'subTitle', 'thankYouAction', 'title', 'waiverSettings', 'walletPassSettings']
 - named, unpriced: 'Cultivate Spring Mountain' keys=['addr', 'city', 'country', 'customURL', 'customURLAndroid', 'embeddedMedURL', 'embeddedURL', 'globalID', 'id', 'isBrandStore', 'name', 'nickname', 'onlineShopURL', 'phone']
 - named, unpriced: 'Cultivate Durango' keys=['addr', 'city', 'country', 'customURL', 'customURLAndroid', 'embeddedMedURL', 'embeddedURL', 'globalID', 'id', 'isBrandStore', 'name', 'nickname', 'onlineShopURL', 'phone']
+- named, unpriced: 'Cultivate Sign Up Form (Updated Aug 2023)' keys=['coMarketing', 'created', 'gearfireWaiverDefSyncedAt', 'id', 'isDefault', 'legacyCreated', 'legacyID', 'name', 'popupWidget', 'sendTextOptIn', 'settingsMap', 'signupFields', 'updated', 'upgraded']
+- named, unpriced: 'Join the Cultivate Garden! Sign up now!' keys=['brandName', 'buttonText', 'enableBrandName', 'enableCoverPhoto', 'enableLogo', 'images', 'pageStyle', 'style', 'subTitle', 'thankYouAction', 'title', 'waiverSettings', 'walletPassSettings']
 - paths: data.appSettings.sharing.showShareInMenu, data.appSettings.productFeed, data.appSettings.productFeed.enabled, data.appSettings.productFeed.enableAndroid, data.appSettings.productFeed.showOnHomeTab, data.appSettings.productFeed.showOnShopTab, data.appSettings.verbiage.navigation.hamburgerMenu, data.appSettings.verbiage.navigation.hamburgerMenu.profileName, data.appSettings.verbiage.navigation.hamburgerMenu.shareAppName, data.appSettings.verbiage.navigation.hamburgerMenu.faqName
 
 ## curaleaf — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
@@ -40,15 +40,18 @@ Call log:
 
 ## greenlight — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
 - page: https://greenlightdispensary.com/specials
-- json payloads: 5 (hosts: {'script.crazyegg.com': 2, 'cdn.acsbapp.com': 1, 'thegreenlightdispensary.info': 1, 'greenlightdispensary.com': 1})
+- json payloads: 6 (hosts: {'script.crazyegg.com': 2, 'tags.srv.stackadapt.com': 1, 'cdn.acsbapp.com': 1, 'thegreenlightdispensary.info': 1, 'greenlightdispensary.com': 1})
 - paths: widgetSettings.statementVariant
 
-## inyo — named things present but no price the parser recognizes -- PARSER GAP
+## inyo — 1 product-shaped nodes present -- parser should have caught these
 - page: https://inyolasvegas.com/menu
-- json payloads: 18 (hosts: {'api.nevada.getcarrot.io': 7, 'sa.searchatlas.com': 1})
+- json payloads: 18 (hosts: {'api.nevada.getcarrot.io': 8})
+- product-shaped nodes: 1
 - named, unpriced: 'S. Maryland Pkwy' keys=['addressLine1', 'addressLine2', 'companyId', 'enabled', 'id', 'imageUrl', 'name', 'sort', 'timeZoneId']
 - named, unpriced: 'S. Maryland Pkwy' keys=['addressLine1', 'addressLine2', 'companyId', 'enabled', 'id', 'imageUrl', 'name', 'sort', 'timeZoneId']
-- paths: pickup:min_price, minimum_item_price, surfside:product_list_zone_id, system:in_store_menu_dark_mode, system:in_store_menu_queue_image, system:in_store_menu_rotation, system:in_store_menu_background, refresh_product_recommendations, redemptionByProduct
+- named, unpriced: 'CONES (LIL LEAN)' keys=['batchId', 'batchName', 'brand', 'cacheTimestamp', 'carrotSubcategory', 'cashPriceRange', 'categoryName', 'categorySlug', 'description', 'descriptionAndroid', 'descriptionIos', 'effectTags', 'embedding', 'id']
+- named, unpriced: 'INTEGRA BOOST 2 WAY HUMIDITY CONTROL PACK' keys=['batchId', 'batchName', 'brand', 'cacheTimestamp', 'carrotSubcategory', 'cashPriceRange', 'categoryName', 'categorySlug', 'description', 'descriptionAndroid', 'descriptionIos', 'effectTags', 'embedding', 'id']
+- paths: results[].hits[].document.cashPriceRange, results[].hits[].document.option1Price, results[].hits[].document.unitWeight, results[].hits[].document.weights, refresh_product_recommendations, redemptionByProduct, pickup:min_price, minimum_item_price, surfside:product_list_zone_id, system:in_store_menu_dark_mode, system:in_store_menu_queue_image, system:in_store_menu_rotation
 
 ## jardin — page loaded but fetched no JSON (menu may be server-rendered, blocked, or behind a click)
 - page: https://jardincannabis.com/specials
@@ -86,15 +89,11 @@ Call log:
 - page: https://silverstaterelief.com/specials
 - json payloads: 0 (hosts: none)
 
-## thesource — 1 product-shaped nodes present -- parser should have caught these
-- page: https://www.thesourcenv.com/shop
-- json payloads: 12 (hosts: {'lab.alpineiq.com': 7, 'freeada.skynettechnologies.com': 1})
-- product-shaped nodes: 1
-- named, unpriced: 'Libras' keys=['feature_type', 'id', 'name', 'order', 'slug', 'status']
-- named, unpriced: 'Voice Navigation' keys=['feature_type', 'id', 'name', 'order', 'slug', 'status']
-- named, unpriced: 'Color Blindness' keys=['feature_type', 'id', 'name', 'order', 'slug', 'status']
-- named, unpriced: 'Talk & Type' keys=['feature_type', 'id', 'name', 'order', 'slug', 'status']
-- paths: data_feature.main_menu[].id, data_feature.main_menu[].name, data_feature.main_menu[].slug, data_feature.main_menu[].order, data_feature.main_menu[].status, data_feature.main_menu[].feature_type, data.ecomLocations[].subEcomLocations[].menuType, data.ecomLocations[].subEcomLocations[].ecomMenuProvider, data.ecomLocations[].ecomMenuProviders, Data.user_package_detail[].price, Data.user_package_detail[].monthly_price, Data.user_package_detail[].price_2
+## thesource — named things present but no price the parser recognizes -- PARSER GAP
+- page: https://www.thesourcenv.com/specials
+- json payloads: 8 (hosts: {'lab.alpineiq.com': 6, 'ada.skynettechnologies.us': 2})
+- named, unpriced: 'The Source Jane' keys=['connectionId', 'inventoryProvider', 'menuProvider', 'name']
+- paths: data.ecomLocations[].subEcomLocations[].menuType, data.ecomLocations[].subEcomLocations[].ecomMenuProvider, data.ecomLocations[].ecomMenuProviders, data.ecomMenuProviders, data.menuType, data.recommendationSettings.screenSettings.price, data.recommendationSettings.screenSettings.price.enabled, data.recommendationSettings.screenSettings.price.required, data.recommendationSettings.screenSettings.price.edibleEnabled, data.recommendationSettings.screenSettings.price.edibleRequired, data.reviewSettings.screenSettings.productList, data.screenSettings.productDetails
 
 ## thrive — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
 - page: https://thrivenevada.com/specials
@@ -110,10 +109,10 @@ Call log:
 
 ## zenleaf — 512 product-shaped nodes present -- parser should have caught these
 - page: https://zenleafdispensaries.com/menu
-- json payloads: 12 (hosts: {'zenleafdispensaries.com': 4, 'data.zenleafdispensaries.com': 4})
+- json payloads: 13 (hosts: {'zenleafdispensaries.com': 4, 'data.zenleafdispensaries.com': 4})
 - product-shaped nodes: 512
-- named, unpriced: 'Eastern Time (ET)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
-- named, unpriced: 'Mountain Time (MT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
-- named, unpriced: 'Central Time (CT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
-- named, unpriced: 'Pacific Time (PT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
+- named, unpriced: 'Abington' keys=['address_1', 'address_2', 'bodegaStore', 'city', 'hours', 'lat', 'lng', 'locationId', 'location_status', 'medicalStoreId', 'phoneNumberOverride', 'post_id', 'post_title', 'recreationalStoreId']
+- named, unpriced: 'Altoona' keys=['address_1', 'address_2', 'bodegaStore', 'city', 'hours', 'lat', 'lng', 'locationId', 'location_status', 'medicalStoreId', 'phoneNumberOverride', 'post_id', 'post_title', 'recreationalStoreId']
+- named, unpriced: 'Antwerp' keys=['address_1', 'address_2', 'bodegaStore', 'city', 'hours', 'lat', 'lng', 'locationId', 'location_status', 'medicalStoreId', 'phoneNumberOverride', 'post_id', 'post_title', 'recreationalStoreId']
+- named, unpriced: 'Arcadia' keys=['address_1', 'address_2', 'bodegaStore', 'city', 'hours', 'lat', 'lng', 'locationId', 'location_status', 'medicalStoreId', 'phoneNumberOverride', 'post_id', 'post_title', 'recreationalStoreId']
 - paths: products[].id, products[].name, products[].category, products[].category.id, products[].category.name, products[].category.canonicalName, products[].subcategory, products[].subcategory.id, products[].subcategory.name, products[].subcategory.canonicalName, products[].images, products[].brand

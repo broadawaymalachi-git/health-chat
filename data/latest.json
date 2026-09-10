@@ -1,36 +1,36 @@
 {
-  "generated_at": "2026-09-10T01:46:31+00:00",
+  "generated_at": "2026-09-10T01:56:52+00:00",
   "anchor": "89148",
   "drive_minutes": 20,
   "tax_multiplier": 1.21375,
   "run": {
     "id": 1,
-    "finished_at": "2026-09-10T01:46:30+00:00",
-    "stores_ok": 3,
-    "stores_failed": 17,
-    "offer_count": 577
+    "finished_at": "2026-09-10T01:56:51+00:00",
+    "stores_ok": 2,
+    "stores_failed": 18,
+    "offer_count": 576
   },
   "stores": [
     {
       "dispensary_id": "zenleaf",
-      "last_ok": "2026-09-10T01:46:30+00:00",
+      "last_ok": "2026-09-10T01:56:51+00:00",
       "last_error": null,
       "last_offers": 532
     },
     {
       "dispensary_id": "inyo",
-      "last_ok": "2026-09-10T01:46:30+00:00",
+      "last_ok": "2026-09-10T01:56:51+00:00",
       "last_error": null,
       "last_offers": 44
     },
     {
-      "dispensary_id": "thesource",
-      "last_ok": "2026-09-10T01:46:30+00:00",
-      "last_error": null,
-      "last_offers": 1
+      "dispensary_id": "planet13",
+      "last_ok": null,
+      "last_error": "loaded but no offers parsed",
+      "last_offers": 0
     },
     {
-      "dispensary_id": "planet13",
+      "dispensary_id": "thesource",
       "last_ok": null,
       "last_error": "loaded but no offers parsed",
       "last_offers": 0
