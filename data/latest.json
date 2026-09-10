@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-10T02:59:38+00:00",
+  "generated_at": "2026-09-10T03:16:10+00:00",
   "anchor": "89148",
   "drive_minutes": 20,
   "tax_multiplier": 1.21375,
   "run": {
     "id": 1,
-    "finished_at": "2026-09-10T02:59:37+00:00",
+    "finished_at": "2026-09-10T03:16:08+00:00",
     "stores_ok": 3,
     "stores_failed": 20,
     "offer_count": 879
@@ -13,19 +13,19 @@
   "stores": [
     {
       "dispensary_id": "zenleaf",
-      "last_ok": "2026-09-10T02:59:37+00:00",
+      "last_ok": "2026-09-10T03:16:08+00:00",
       "last_error": null,
       "last_offers": 827
     },
     {
       "dispensary_id": "inyo",
-      "last_ok": "2026-09-10T02:59:37+00:00",
+      "last_ok": "2026-09-10T03:16:08+00:00",
       "last_error": null,
       "last_offers": 46
     },
     {
       "dispensary_id": "leafly_deals",
-      "last_ok": "2026-09-10T02:59:37+00:00",
+      "last_ok": "2026-09-10T03:16:08+00:00",
       "last_error": null,
       "last_offers": 6
     },
