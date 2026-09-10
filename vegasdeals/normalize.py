@@ -213,6 +213,7 @@ class Offer:
     grams: float | None = None
     thc_mg: float | None = None
     out_the_door: float | None = None
+    _otd_exact: float | None = None      # unrounded, for per-unit division
     unit_basis: str = "per_item"
     unit_price: float | None = None
     percent_off: float | None = None
@@ -229,6 +230,7 @@ class Offer:
             self.thc_percent = parse_thc_percent(self.name, self.size_text)
 
         if self.menu_price is not None:
+            self._otd_exact = self.menu_price * tax.multiplier
             self.out_the_door = tax.out_the_door(self.menu_price)
 
         if self.base_price and self.menu_price and self.base_price > self.menu_price:
@@ -246,10 +248,11 @@ class Offer:
     def _unit_price(self) -> float | None:
         if self.out_the_door is None:
             return None
+        exact = self._otd_exact if self._otd_exact is not None else self.out_the_door
         if self.unit_basis == "per_gram" and self.grams:
-            return round(self.out_the_door / self.grams, 2)
+            return round(exact / self.grams, 2)
         if self.unit_basis == "per_100mg_thc" and self.thc_mg:
-            return round(self.out_the_door / (self.thc_mg / 100.0), 2)
+            return round(exact / (self.thc_mg / 100.0), 2)
         if self.unit_basis == "per_item":
             return self.out_the_door
         # Right basis, missing denominator: fall back rather than drop the offer.
