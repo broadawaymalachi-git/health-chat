@@ -60,6 +60,7 @@ class TaxModel:
 class Settings:
     anchor: str = "89148"
     drive_minutes: int = 20
+    delivery_mode: bool = True
     ors_api_key: str | None = None
     anthropic_api_key: str | None = None
     model: str = "claude-opus-5"
@@ -75,6 +76,7 @@ def load_settings() -> Settings:
     return Settings(
         anchor=os.getenv("VD_ANCHOR", "89148"),
         drive_minutes=int(_f("VD_DRIVE_MINUTES", 20)),
+        delivery_mode=_b("VD_DELIVERY_MODE", True),
         ors_api_key=os.getenv("ORS_API_KEY") or None,
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,
         model=os.getenv("VD_MODEL", "claude-opus-5"),

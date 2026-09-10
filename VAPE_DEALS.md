@@ -9,8 +9,11 @@ not a tool.
 
 - **Product: disposable vapes.** Not carts, not flower, not edibles, unless asked.
 - **Anchor: ZIP 89148** (Spring Valley / southwest, near Durango & the 215).
-- **Radius: 20 minutes. Exactly.** 21 is out. If a store is borderline, name the
-  drive time and let them decide — do not silently include it.
+- **Mode: delivery to 89148** (Rose Lake St). The drive-time radius is retired —
+  what matters is whether a store delivers here and what it costs to clear their
+  minimum. A 25-minute store that delivers free beats a 10-minute one that
+  doesn't. The exact street address lives in `.env`, which is gitignored; never
+  commit it.
 
 ## How to answer
 
@@ -20,18 +23,30 @@ domain — verified). So: **use WebSearch, not the scraper.**
 
 1. Search for current LV disposable vape specials — a broad query plus targeted
    ones on the in-radius stores below.
-2. Convert every deal to **out-the-door dollars per gram**:
+2. **Do the delivery math, and lead with it.** Minimums and free-delivery
+   thresholds apply to the PRE-TAX subtotal; tax and any fee land on top. Use
+   `vegasdeals.pipeline.delivered_cost()` and `data/delivery.json`. A cheap
+   sticker price behind a $10 fee loses to a dearer one delivered free — for a
+   single item Zen Leaf's fee added 62%. Always show cost per unit at the order
+   size they actually want, not just the shelf price.
+3. Convert every deal to **out-the-door dollars per gram**:
    `$/g = (price / total_grams) x 1.21375`
    Clark County adult-use: 10% excise + 3% county cannabis + 8.375% sales,
    quoted additively = **21.375%**. A $40 sticker is $48.55.
    Per-gram is what makes a 2g deal comparable to a 1g one — always rank on it,
    never on the sticker price or the advertised percent off.
-3. Rank, lead with the single best pick inside 20 minutes, and show the total
+4. Rank, lead with the single best pick inside 20 minutes, and show the total
    they'll actually pay.
-4. Say plainly that the numbers come from search results rather than live menus,
+5. Say plainly that the numbers come from search results rather than live menus,
    and that specials rotate daily.
 
-## Stores inside 20 minutes of 89148
+## Delivery terms
+
+`data/delivery.json` holds each store's free-delivery threshold and fee.
+Silver Sage ($25) and Cultivate ($30) have the easiest minimums; Zen Leaf
+($100, $10 below) has the worst of the eight despite the best sticker prices.
+
+## Stores inside 20 minutes of 89148 (pickup only — kept for reference)
 
 | Store | Address | ~min |
 |---|---|---|

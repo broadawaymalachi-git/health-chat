@@ -105,6 +105,20 @@ def in_radius(stores: list[ds.Dispensary], minutes: int) -> list[ds.Dispensary]:
     ]
 
 
+def delivered_cost(units: int, menu_price: float, free_over: float,
+                   fee_below: float, tax_multiplier: float) -> tuple[float, float, float]:
+    """(subtotal, total, per-unit) for `units` at `menu_price`, delivered.
+
+    Minimums and free-delivery thresholds apply to the pre-tax subtotal; tax and
+    the fee land on top. This is the number that decides where to order: a low
+    sticker price behind a $10 fee loses to a higher one delivered free.
+    """
+    subtotal = units * menu_price
+    fee = 0.0 if subtotal >= free_over else fee_below
+    total = subtotal * tax_multiplier + fee
+    return round(subtotal, 2), round(total, 2), round(total / units, 2)
+
+
 async def refresh(settings: Settings, db_path: Path = DB_PATH,
                   seed_path: Path = SEED_PATH) -> dict:
     """One full scrape cycle. Returns a summary dict."""

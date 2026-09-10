@@ -1,0 +1,14 @@
+{
+  "_comment": "Delivery terms per store. Minimums apply to the PRE-TAX subtotal; tax and any fee land on top. Verify by phone -- these come from public listings and change without notice.",
+  "_verified": "2026-09-10",
+  "stores": [
+    {"id": "silversage",  "name": "Silver Sage Wellness", "free_over": 25,  "fee_below": 0,  "notes": "open 24/7, dispatches from 10am"},
+    {"id": "cultivate",   "name": "Cultivate",            "free_over": 30,  "fee_below": 0,  "notes": "Mon-Sat 9-9, Sun 10:30-8; delivers Spring Valley"},
+    {"id": "greennv",     "name": "Green Dispensary",     "free_over": 50,  "fee_below": 0,  "notes": "same-day 9am-11pm daily"},
+    {"id": "oasis",       "name": "Oasis Cannabis",       "free_over": 50,  "fee_below": 0,  "notes": ""},
+    {"id": "euphoria",    "name": "Euphoria Wellness",    "free_over": 75,  "fee_below": 0,  "notes": "minimum excludes fees"},
+    {"id": "thrive",      "name": "Thrive",               "free_over": 75,  "fee_below": 5,  "notes": "flat $5 fee per order"},
+    {"id": "curaleaf",    "name": "Curaleaf",             "free_over": 80,  "fee_below": 0,  "notes": "delivery only on $80+"},
+    {"id": "zenleaf",     "name": "Zen Leaf",             "free_over": 100, "fee_below": 10, "notes": "UNVERIFIED: source referenced medical cards; $10 within 10mi, free over $100. Confirm by phone."}
+  ]
+}
