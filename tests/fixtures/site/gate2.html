@@ -1,0 +1,23 @@
+<!doctype html><html><head><title>Gated Shop 2</title></head><body>
+<div id="gate" style="position:fixed;inset:0;background:#111;color:#fff;display:flex;
+     align-items:center;justify-content:center;flex-direction:column;z-index:99">
+  <h1>Are you 21 or older?</h1><button id="yes">Yes</button>
+</div>
+<div id="menu">loading…</div>
+<script>
+// Uses a key the scraper does NOT pre-seed, so a real click is required.
+var KEY = 'shop2_age_ok_xyz';
+if (sessionStorage.getItem(KEY) === '1') {
+  document.getElementById('gate').remove();
+  fetch('/api/menu/products').then(r=>r.json()).then(d=>{
+    document.getElementById('menu').textContent = d.products.length + ' products';});
+}
+document.getElementById('yes').onclick = function(){
+  sessionStorage.setItem(KEY, '1');
+  document.getElementById('gate').remove();
+  // Deliberately does NOT fetch — only a fresh load mounts the menu.
+};
+</script>
+<p>padding padding padding padding padding padding padding padding padding padding
+padding padding padding padding padding padding padding padding padding padding</p>
+</body></html>
