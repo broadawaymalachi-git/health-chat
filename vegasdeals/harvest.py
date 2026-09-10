@@ -104,6 +104,43 @@ def _detect_block(html: str, status: int | None) -> str | None:
     return None
 
 
+PRODUCTY = re.compile(r"(product|menu_item|menuitem|variant|price|special|deal|"
+                      r"algolia|queries|search)", re.I)
+
+
+def looks_producty(payload: dict) -> bool:
+    """Did this response plausibly carry menu items rather than configuration?"""
+    if not PRODUCTY.search(payload.get("url", "")):
+        return False
+    try:
+        blob = json.dumps(payload.get("body"), default=str)[:60_000].lower()
+    except Exception:
+        return False
+    return ('"price' in blob or "price_" in blob or '"cost' in blob)
+
+
+async def _open_a_category(page) -> bool:
+    """Click into a category so the menu actually queries for items."""
+    for name in ("Vaporizers", "Vapes", "Vape", "Disposables", "Cartridges",
+                 "Shop all", "Shop All", "All Products", "Specials", "Deals",
+                 "Browse", "Menu"):
+        for frame in [page] + list(page.frames):
+            try:
+                el = frame.get_by_role("link", name=name, exact=False).first
+                if await el.count() and await el.is_visible(timeout=400):
+                    await el.click(timeout=2500)
+                    await page.wait_for_timeout(3500)
+                    return True
+                el = frame.get_by_role("button", name=name, exact=False).first
+                if await el.count() and await el.is_visible(timeout=400):
+                    await el.click(timeout=2500)
+                    await page.wait_for_timeout(3500)
+                    return True
+            except Exception:
+                continue
+    return False
+
+
 async def _fill_birthdate(frame) -> bool:
     """Some gates want a date of birth instead of a yes/no button."""
     filled = False
@@ -188,6 +225,14 @@ async def _dismiss_age_gate(page) -> bool:
     return dismissed
 
 
+VENDOR_HOSTS = ("dutchie.com", "iheartjane.com", "weedmaps.com", "leafly.com",
+                "tymber.io", "sweed.menu", "dispenseapp.com")
+
+
+def _is_vendor_embed(url: str) -> bool:
+    return any(h in url.lower() for h in VENDOR_HOSTS)
+
+
 async def capture_menu(
     context,
     dispensary_id: str,
@@ -243,10 +288,32 @@ async def capture_menu(
             await page.wait_for_timeout(2000)
             await _dismiss_age_gate(page)
 
-        # Menus lazy-load; scrolling is what actually triggers the product fetches.
+        # Vendor embeds are heavy client-side apps; give them room to finish.
+        if _is_vendor_embed(url):
+            scrolls = max(scrolls, 14)
+            settle_ms = max(settle_ms, 9000)
+        try:
+            await page.wait_for_load_state("networkidle", timeout=20_000)
+        except Exception:
+            pass
+
+        # Menus lazy-load; scrolling is what triggers the product fetches. Keep
+        # going while new payloads keep arriving, and stop early once they stop.
+        idle_rounds = 0
         for _ in range(scrolls):
+            before = len(cap.payloads)
             await page.mouse.wheel(0, 4000)
-            await page.wait_for_timeout(700)
+            await page.wait_for_timeout(900)
+            if len(cap.payloads) == before:
+                idle_rounds += 1
+                if idle_rounds >= 4:
+                    break
+            else:
+                idle_rounds = 0
+
+        # A product query often only fires once a category is opened.
+        if not any(looks_producty(p) for p in cap.payloads):
+            await _open_a_category(page)
 
         await page.wait_for_timeout(settle_ms)
         cap.html = await page.content()
