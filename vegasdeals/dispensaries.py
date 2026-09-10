@@ -51,10 +51,37 @@ class Dispensary:
     drive_minutes: float | None = None
     enabled: bool = True
     notes: str = ""
+    weedmaps_slug: str | None = None
+    leafly_slug: str | None = None
+    # An aggregator feed (a Weedmaps or Leafly deals page) rather than one store.
+    is_aggregator: bool = False
 
     @property
     def scrape_url(self) -> str:
         return self.menu_url or self.website
+
+    def _slug(self) -> str:
+        return re.sub(r"[^a-z0-9]+", "-", self.name.lower()).strip("-")
+
+    @property
+    def fallback_urls(self) -> list[str]:
+        """Third-party listings to fall back on when a store's own site fails.
+
+        Three of these dispensaries are simply unreachable -- an expired
+        certificate, a domain that no longer resolves, a refused connection --
+        and no amount of retrying their own site helps. Their menus are still
+        published on Weedmaps and Leafly.
+        """
+        slug = self._slug()
+        wm = self.weedmaps_slug or slug
+        lf = self.leafly_slug or slug
+        return [
+            f"https://weedmaps.com/dispensaries/{wm}/menu/vape-pens/disposable",
+            f"https://weedmaps.com/dispensaries/{wm}/deals",
+            f"https://weedmaps.com/dispensaries/{wm}",
+            f"https://www.leafly.com/dispensary-info/{lf}/menu",
+            f"https://www.leafly.com/dispensary-info/{lf}/deals",
+        ]
 
     @property
     def candidate_urls(self) -> list[str]:
@@ -64,11 +91,14 @@ class Dispensary:
         /menu, /shop or an embedded vendor URL. Trying the common paths is what
         turns "loaded but no offers parsed" into an actual menu.
         """
+        if self.is_aggregator:
+            return [self.website]
         base = self.website.rstrip("/")
         urls = [self.menu_url] if self.menu_url else []
         urls += [f"{base}{p}" for p in
                  ("/menu", "/shop", "/order-online", "/specials", "/deals", "/products")]
         urls.append(base)
+        urls += self.fallback_urls
         seen, out = set(), []
         for u in urls:
             if u and u not in seen:

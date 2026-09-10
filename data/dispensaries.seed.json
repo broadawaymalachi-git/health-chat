@@ -10,7 +10,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: HTTPError"
+    "notes": "unreachable: HTTPError",
+    "weedmaps_slug": "planet-13-las-vegas"
   },
   {
     "id": "thesource",
@@ -23,7 +24,8 @@
     "lon": -115.241856,
     "drive_minutes": 12.6,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "the-source-las-vegas"
   },
   {
     "id": "oasis",
@@ -62,7 +64,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "curaleaf-las-vegas-boulevard"
   },
   {
     "id": "cookies",
@@ -75,7 +78,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: URLError"
+    "notes": "unreachable: URLError",
+    "weedmaps_slug": "cookies-on-the-strip"
   },
   {
     "id": "thrive",
@@ -101,7 +105,8 @@
     "lon": -115.110858176794,
     "drive_minutes": 7.7,
     "enabled": true,
-    "notes": "unreachable: URLError"
+    "notes": "unreachable: URLError",
+    "weedmaps_slug": "jardin-premium-cannabis-dispensary"
   },
   {
     "id": "deeproots",
@@ -140,7 +145,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "zen-leaf-flamingo"
   },
   {
     "id": "beyondhello",
@@ -179,7 +185,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: URLError"
+    "notes": "unreachable: URLError",
+    "weedmaps_slug": "exhale-nevada"
   },
   {
     "id": "sanctuary",
@@ -205,7 +212,8 @@
     "lon": -115.118454427972,
     "drive_minutes": 21.8,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "thedispensarynv"
   },
   {
     "id": "euphoria",
@@ -218,7 +226,8 @@
     "lon": -115.225314750512,
     "drive_minutes": 21.5,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "euphoria-wellness"
   },
   {
     "id": "rise",
@@ -270,7 +279,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: URLError"
+    "notes": "unreachable: URLError",
+    "weedmaps_slug": "tree-of-life-dispensary-las-vegas"
   },
   {
     "id": "wallflower",
@@ -296,7 +306,8 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": ""
+    "notes": "",
+    "weedmaps_slug": "shango-las-vegas"
   },
   {
     "id": "inyo",
@@ -310,5 +321,35 @@
     "drive_minutes": 4.1,
     "enabled": true,
     "notes": ""
+  },
+  {
+    "id": "silversage",
+    "name": "Silver Sage Wellness",
+    "website": "https://www.sswlv.com",
+    "weedmaps_slug": "silver-sage-wellness"
+  },
+  {
+    "id": "greennv",
+    "name": "Green Dispensary",
+    "website": "https://greennv.com",
+    "weedmaps_slug": "green-las-vegas"
+  },
+  {
+    "id": "wm_deals",
+    "name": "Weedmaps LV Deals",
+    "is_aggregator": true,
+    "website": "https://weedmaps.com/deals/united-states/nevada/las-vegas"
+  },
+  {
+    "id": "wm_dispos",
+    "name": "Weedmaps LV Disposables",
+    "is_aggregator": true,
+    "website": "https://weedmaps.com/dispensaries/in/united-states/nevada/las-vegas"
+  },
+  {
+    "id": "leafly_deals",
+    "name": "Leafly LV Deals",
+    "is_aggregator": true,
+    "website": "https://www.leafly.com/deals/las-vegas-nv-us"
   }
 ]

@@ -167,7 +167,10 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
         )
         for cap in captures:
             store = by_id[cap.dispensary_id]
-            offers = offers_from_payloads(cap.payloads, store.id, store.name)
+            offers = offers_from_payloads(
+                cap.payloads, store.id, store.name,
+                attribute_from_payload=store.is_aggregator,
+            )
             for o in offers:
                 o.drive_minutes = store.drive_minutes
                 o.enrich(settings.tax)

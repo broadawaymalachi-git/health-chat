@@ -40,6 +40,18 @@ THC_KEYS = ("thc", "thcpercent", "thc_percent", "percentthc", "potencythc",
 PROMO_KEYS = ("specialdata", "special_data", "specialname", "special_name",
               "promotion", "promo", "specials", "special", "deals", "deal",
               "discount", "offer")
+# On an aggregator (Weedmaps, Leafly) each product names its own store, so the
+# offer must be attributed to that dispensary rather than to the feed.
+STORE_NAME_KEYS = ("dispensary", "dispensaryname", "storename", "store",
+                   "retailer", "listing", "listingname", "shop", "shopname",
+                   "location", "locationname", "brandstore")
+
+# On an aggregator (Weedmaps, Leafly) each product names its own store, so the
+# offer must be attributed to that dispensary rather than to the feed.
+STORE_NAME_KEYS = ("dispensary", "dispensaryname", "storename", "store",
+                   "retailer", "listing", "listingname", "shop", "shopname",
+                   "location", "locationname", "brandstore")
+
 URL_KEYS = ("url", "producturl", "product_url", "link", "href", "permalink", "slug")
 
 # Containers whose entries are per-weight variants of one product.
@@ -256,6 +268,7 @@ def offers_from_payloads(
     payloads: list[dict[str, Any]],
     dispensary_id: str,
     dispensary_name: str,
+    attribute_from_payload: bool = False,
 ) -> list[Offer]:
     """Every distinct offer found across one store's captured JSON."""
     offers: list[Offer] = []
@@ -271,6 +284,11 @@ def offers_from_payloads(
             thc = _percent(_get(node, THC_KEYS))
             promo = _text(_get(node, PROMO_KEYS))
             url = _text(_get(node, URL_KEYS))
+            store = dispensary_name
+            if attribute_from_payload:
+                named = _text(_get(node, STORE_NAME_KEYS))
+                if named and 2 < len(named) < 60:
+                    store = named
 
             for size, price, base in _variant_offers(node):
                 if price is None:
@@ -284,7 +302,7 @@ def offers_from_payloads(
                 seen.add(key)
                 offers.append(Offer(
                     dispensary_id=dispensary_id,
-                    dispensary_name=dispensary_name,
+                    dispensary_name=store,
                     name=name,
                     brand=brand,
                     raw_category=category,
