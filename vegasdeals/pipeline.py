@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 MAX_URL_ROUNDS = 6   # extra rounds for URLs discovered mid-run
 
 
-def _save_sample(store_id: str, cap) -> None:
+def _save_sample(store_id: str, cap, attempt: int = 0) -> None:
     """Dump a slice of raw captured JSON for diagnosing parser gaps.
 
     Without this there is no way to tell a store that blocked us from one whose
@@ -38,7 +38,7 @@ def _save_sample(store_id: str, cap) -> None:
              "html_len": len(cap.html or ""),
              "payload_count": len(cap.payloads), "payloads": sample},
             default=str)[:2_000_000]
-        (out / f"{store_id}.json").write_text(text)
+        (out / f"{store_id}__{attempt:02d}.json").write_text(text)
     except Exception as exc:
         log.debug("could not save sample for %s: %s", store_id, exc)
 
@@ -179,7 +179,7 @@ async def refresh(settings: Settings, db_path: Path = DB_PATH,
                 o.enrich(settings.tax)
             offers = [o for o in offers if o.out_the_door is not None]
             if os.getenv("VD_SAVE_SAMPLES"):
-                _save_sample(store.id, cap)
+                _save_sample(store.id, cap, round_no)
             if offers:
                 found[store.id] = offers
                 # Remember what worked so the next run goes straight there.

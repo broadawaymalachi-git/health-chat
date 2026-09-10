@@ -119,7 +119,50 @@ def diagnose_store(path: Path) -> dict:
     return report
 
 
+# How much a verdict tells us. A 404 on a guessed fallback URL is nearly
+# worthless; a parser gap on the store's own menu is what we want to surface.
+_VERDICT_RANK = [
+    ("should have caught", 100),
+    ("PARSER GAP", 90),
+    ("holds no menu data", 60),
+    ("still no JSON", 50),
+    ("server-rendered", 40),
+    ("blocked before", 30),
+    ("failed to load", 20),
+]
+
+
+def _rank(verdict: str) -> int:
+    for needle, score in _VERDICT_RANK:
+        if needle in verdict:
+            return score
+    return 0
+
+
 def run(samples_dir: Path) -> list[dict]:
+    """One report per store, built from every URL that was attempted."""
     if not samples_dir.exists():
         return []
-    return [diagnose_store(f) for f in sorted(samples_dir.glob("*.json"))]
+    by_store: dict[str, list[dict]] = {}
+    for f in sorted(samples_dir.glob("*.json")):
+        try:
+            report = diagnose_store(f)
+        except Exception:
+            continue
+        by_store.setdefault(report.get("store") or f.stem, []).append(report)
+
+    out = []
+    for store, reports in sorted(by_store.items()):
+        # Most informative attempt wins; the rest become a one-line trail.
+        best = max(reports, key=lambda r: (_rank(r["verdict"]),
+                                           r.get("products_found") or 0,
+                                           r.get("payload_count") or 0))
+        best = dict(best)
+        best["attempts"] = len(reports)
+        best["trail"] = [
+            f"{(r.get('page') or '')[:80]} -> "
+            f"{'HTTP ' + str(r['status']) if r.get('status') and r['status'] >= 400 else r['verdict'][:60]}"
+            for r in reports
+        ]
+        out.append(best)
+    return out

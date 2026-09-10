@@ -68,6 +68,10 @@ def main(argv: list[str] | None = None) -> int:
                 lines.append(f"- named, unpriced: {miss['name']!r} keys={miss['keys']}")
             for miss in r.get("price_no_name", [])[:3]:
                 lines.append(f"- priced, unnamed: ${miss['price']} keys={miss['keys']}")
+            if r.get("attempts", 1) > 1:
+                lines.append(f"- urls tried: {r['attempts']}")
+                for step in r.get("trail", [])[:8]:
+                    lines.append(f"    - {step}")
             if r.get("promising_paths"):
                 lines.append(f"- paths: {', '.join(r['promising_paths'][:12])}")
             lines.append("")
