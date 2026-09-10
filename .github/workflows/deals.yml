@@ -57,6 +57,10 @@ jobs:
       - name: Report what each store gave up
         run: python -m vegasdeals status || true
 
+      - name: Diagnose stores that produced nothing
+        if: always()
+        run: python -m vegasdeals diagnose || true
+
       - name: Export snapshot
         env:
           VD_ANCHOR: "89148"
@@ -67,7 +71,7 @@ jobs:
         run: |
           git config user.name  "deals-bot"
           git config user.email "deals-bot@users.noreply.github.com"
-          git add data/latest.json data/dispensaries.seed.json
+          git add data/latest.json data/dispensaries.seed.json data/diagnostics.md
           if git diff --staged --quiet; then
             echo "No change in today's deals."
           else

@@ -18,6 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("resolve", help="Find each store's menu URL, address and drive time")
     sub.add_parser("refresh", help="Scrape every store in range and score the offers")
     sub.add_parser("status", help="Show what the last run managed to collect")
+    sub.add_parser("diagnose", help="Explain why each store produced no offers")
     p_rad = sub.add_parser(
         "radius", help="Show which parts of the valley fall inside your drive-time budget")
     p_rad.add_argument("--minutes", type=int, default=None,
@@ -43,6 +44,37 @@ def main(argv: list[str] | None = None) -> int:
         for s in sorted(near, key=lambda x: x.drive_minutes or 999):
             mins = f"{s.drive_minutes:.0f}m" if s.drive_minutes is not None else "  ?"
             print(f"  {mins:>4}  {s.name:<32} {s.platform or '?':<9} {s.scrape_url}")
+        return 0
+
+    if args.cmd == "diagnose":
+        from . import diagnose as diag
+        from .config import DATA_DIR
+
+        reports = diag.run(DATA_DIR / "samples")
+        if not reports:
+            print("No samples found. Run refresh with VD_SAVE_SAMPLES=1 first.")
+            return 1
+        lines = ["# Why each store produced no offers", ""]
+        for r in reports:
+            lines.append(f"## {r['store']} — {r['verdict']}")
+            lines.append(f"- page: {r['page']}")
+            lines.append(f"- json payloads: {r['payload_count']} "
+                         f"(hosts: {r.get('json_hosts') or 'none'})")
+            if r.get("error"):
+                lines.append(f"- error: {r['error'][:220]}")
+            if r.get("products_found"):
+                lines.append(f"- product-shaped nodes: {r['products_found']}")
+            for miss in r.get("name_no_price", [])[:4]:
+                lines.append(f"- named, unpriced: {miss['name']!r} keys={miss['keys']}")
+            for miss in r.get("price_no_name", [])[:3]:
+                lines.append(f"- priced, unnamed: ${miss['price']} keys={miss['keys']}")
+            if r.get("promising_paths"):
+                lines.append(f"- paths: {', '.join(r['promising_paths'][:12])}")
+            lines.append("")
+        text = "\n".join(lines)
+        (DATA_DIR / "diagnostics.md").write_text(text)
+        print(text[:4000])
+        print(f"\n[wrote {DATA_DIR / 'diagnostics.md'}]")
         return 0
 
     if args.cmd == "radius":
