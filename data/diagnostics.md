@@ -32,12 +32,12 @@ Call log:
     - https://cookies.co/products -> page failed to load
 
 ## cultivate — named things present but no price the parser recognizes -- PARSER GAP
-- page: https://www.iheartjane.com/embed/stores/2602/menu
-- json payloads: 17 (hosts: {'api.iheartjane.com': 5, 'www.iheartjane.com': 3})
-- named, unpriced: 'Culti | M&M 8ths (14g) for $70 OTD' keys=['conditions', 'created_at', 'custom_badge', 'description', 'discount_amount', 'discount_dollar_amount', 'discount_percent', 'discount_target_price', 'discount_type', 'hidden_from_page', 'hidden_from_row', 'id', 'photo', 'reservation_modes']
-- named, unpriced: 'Bounti/Kanha | B1G1 (Exclusions Apply)' keys=['conditions', 'created_at', 'custom_badge', 'description', 'discount_amount', 'discount_dollar_amount', 'discount_percent', 'discount_target_price', 'discount_type', 'hidden_from_page', 'hidden_from_row', 'id', 'photo', 'reservation_modes']
-- named, unpriced: 'Stiiizy | 30% Off (Exclusions Apply)' keys=['conditions', 'created_at', 'custom_badge', 'description', 'discount_amount', 'discount_dollar_amount', 'discount_percent', 'discount_target_price', 'discount_type', 'hidden_from_page', 'hidden_from_row', 'id', 'photo', 'reservation_modes']
-- named, unpriced: 'Rove | 40% Off (EXCLUDES RTUs)' keys=['conditions', 'created_at', 'custom_badge', 'description', 'discount_amount', 'discount_dollar_amount', 'discount_percent', 'discount_target_price', 'discount_type', 'hidden_from_page', 'hidden_from_row', 'id', 'photo', 'reservation_modes']
+- page: https://www.iheartjane.com/embed/stores/2602/menu/vapes
+- json payloads: 16 (hosts: {'www.iheartjane.com': 4, 'api.iheartjane.com': 4})
+- named, unpriced: 'Cultivate Dispensary - Las Vegas' keys=['address', 'aeropay_integration', 'allow_future_day_ordering', 'allow_off_hours_ordering', 'analytics_integration', 'automatic_crm_redemption', 'avg_response_time', 'birth_date_required', 'boost_menu_url', 'business_paperwork', 'canpay_enabled', 'canpay_v2remotepay_enabled', 'carousel_banner', 'cart_limit_policy']
+- named, unpriced: 'Nevada Purchase Limits' keys=['cart_limit_rules', 'id', 'name']
+- named, unpriced: 'Daily Deals' keys=['display_name', 'enabled', 'id', 'menu_row_type', 'row_type', 'rules']
+- named, unpriced: 'Best Selling' keys=['display_name', 'enabled', 'id', 'menu_row_type', 'row_type', 'rules']
 - urls tried: 6
     - https://cultivatelv.com/deals -> named things present but no price the parser recognizes -- P
     - https://cultivatelv.com/online-menu/ -> named things present but no price the parser recognizes -- P
@@ -45,7 +45,7 @@ Call log:
     - https://www.iheartjane.com/embed/stores/2602/menu/vapes -> named things present but no price the parser recognizes -- P
     - https://cultivatelv.com/online-menu-durango/ -> named things present but no price the parser recognizes -- P
     - https://www.iheartjane.com/embed/stores/5942/menu -> named things present but no price the parser recognizes -- P
-- paths: store.custom_row_settings[].menu_row_type, store.custom_row_settings[].rules.rule_sets[].all_products, specials[].discount_target_price, specials[].conditions.product.kinds[].kind, store.store_taxes[].apply_to_discounted_price, store.store_taxes[].apply_to_non_cannabis_items, specials[].conditions.product, specials[].conditions.bundle.independent.threshold_number_of_items_in_cart, specials[].conditions.bundle.dependent.max_number_of_discounted_products, specials[].conditions.bundle.settings.allow_discounts_on_required_products, specials[].conditions.bundle.settings.exclude_product_specials_from_bundle_qualifiers, specials[].conditions.bundle.settings.copy_conditions_for_discounted_products
+- paths: store.custom_row_settings[].menu_row_type, store.custom_row_settings[].rules.rule_sets[].all_products, store.store_taxes[].apply_to_discounted_price, store.store_taxes[].apply_to_non_cannabis_items, brand_specials[].discount_target_price, brand_specials[].product_brand_id, brand_specials[].product_brand, brand_specials[].product_brand.id, brand_specials[].product_brand.name, brand_specials[].product_brand.logo_url, brand_specials[].applicable_weights, store.boost_menu_url
 
 ## curaleaf — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
 - page: https://curaleaf.com/menu
@@ -117,7 +117,7 @@ Call log:
 - named, unpriced: 'S. Maryland Pkwy' keys=['addressLine1', 'addressLine2', 'companyId', 'enabled', 'id', 'imageUrl', 'name', 'sort', 'timeZoneId']
 - named, unpriced: 'CONES (LIL LEAN)' keys=['batchId', 'batchName', 'brand', 'cacheTimestamp', 'carrotSubcategory', 'cashPriceRange', 'categoryName', 'categorySlug', 'description', 'descriptionAndroid', 'descriptionIos', 'effectTags', 'embedding', 'id']
 - named, unpriced: 'INTEGRA BOOST 2 WAY HUMIDITY CONTROL PACK' keys=['batchId', 'batchName', 'brand', 'cacheTimestamp', 'carrotSubcategory', 'cashPriceRange', 'categoryName', 'categorySlug', 'description', 'descriptionAndroid', 'descriptionIos', 'effectTags', 'embedding', 'id']
-- paths: results[].hits[].document.cashPriceRange, results[].hits[].document.option1Price, results[].hits[].document.unitWeight, results[].hits[].document.weights, pickup:min_price, minimum_item_price, surfside:product_list_zone_id, system:in_store_menu_dark_mode, system:in_store_menu_queue_image, system:in_store_menu_rotation, system:in_store_menu_background, refresh_product_recommendations
+- paths: results[].hits[].document.cashPriceRange, results[].hits[].document.option1Price, results[].hits[].document.unitWeight, results[].hits[].document.weights, refresh_product_recommendations, redemptionByProduct, pickup:min_price, minimum_item_price, surfside:product_list_zone_id, system:in_store_menu_dark_mode, system:in_store_menu_queue_image, system:in_store_menu_rotation
 
 ## jardin — blocked before the menu loaded (HTTP 404)
 - page: https://jardincannabis.com/menu
@@ -143,11 +143,11 @@ Call log:
 - priced, unnamed: $10.0 keys=['cartQuantity', 'cartUnit', 'cbdPips', 'deal', 'dealId', 'displayQuantity', 'externalKey', 'id', 'medical', 'normalizedQuantityLabel', 'offers', 'price', 'pricePerUnit', 'quantity']
 - paths: pageProps.menuData.availableFilters[].values[].badge, pageProps.menuData.availableFilters[].values[].chip, pageProps.menuData.availableFilters[].values[].count, pageProps.menuData.availableFilters[].values[].label, pageProps.menuData.availableFilters[].values[].sortOrder, pageProps.menuData.availableFilters[].values[].type, pageProps.menuData.availableFilters[].values[].value, pageProps.menuData.availableFilters[].label, pageProps.menuData.availableFilters[].name, pageProps.menuData.availableFilters[].showCount, pageProps.menuData.availableFilters[].sortOrder, pageProps.menuData.availableFilters[].type
 
-## nevadamade — blocked before the menu loaded (HTTP 403)
+## nevadamade — no age gate found and no JSON fetched -- menu is server-rendered, or the page is a shell
 - page: https://nevadamademarijuana.com/menu
 - json payloads: 0 (hosts: none)
 - urls tried: 6
-    - https://nevadamademarijuana.com/menu -> HTTP 403
+    - https://nevadamademarijuana.com/menu -> no age gate found and no JSON fetched -- menu is server-rend
     - https://nevadamademarijuana.com/shop -> HTTP 403
     - https://nevadamademarijuana.com/order-online -> HTTP 403
     - https://nevadamademarijuana.com/specials -> HTTP 403
@@ -156,7 +156,7 @@ Call log:
 
 ## oasis — named things present but no price the parser recognizes -- PARSER GAP
 - page: https://oasiscannabis.com/menu
-- json payloads: 18 (hosts: {'otlp-http-production.shopifysvc.com': 6, 'sentry.kube-prod.sweedpos.com': 1, 'web-ui-prime.sweedpos.com': 1})
+- json payloads: 18 (hosts: {'otlp-http-production.shopifysvc.com': 6, 'oasiscannabis.com': 1, 'web-ui-prime.sweedpos.com': 1})
 - named, unpriced: 'Oasis Cannabis Dispensary' keys=['amenities', 'contacts', 'dealerId', 'deliveryPromos', 'deliveryZones', 'id', 'images', 'instance', 'isCaregiverOrdersEnabled', 'isMock', 'location', 'name', 'routeName', 'saleTypes']
 - named, unpriced: 'Store hours' keys=['name', 'schedules', 'type']
 - named, unpriced: 'In-store pickup' keys=['name', 'schedules', 'type']
@@ -218,11 +218,11 @@ Call log:
     - https://goshango.com/specials -> HTTP 404
     - https://goshango.com/deals -> HTTP 404
 
-## silversage — blocked before the menu loaded (HTTP 403)
+## silversage — no age gate found and no JSON fetched -- menu is server-rendered, or the page is a shell
 - page: https://www.sswlv.com/menu
 - json payloads: 0 (hosts: none)
 - urls tried: 6
-    - https://www.sswlv.com/menu -> HTTP 403
+    - https://www.sswlv.com/menu -> no age gate found and no JSON fetched -- menu is server-rend
     - https://www.sswlv.com/shop -> HTTP 403
     - https://www.sswlv.com/order-online -> HTTP 403
     - https://www.sswlv.com/specials -> HTTP 403
@@ -231,25 +231,27 @@ Call log:
 
 ## silverstate — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
 - page: https://silverstaterelief.com/menu
-- json payloads: 64 (hosts: {'browser-intake-datadoghq.com': 8})
+- json payloads: 59 (hosts: {'browser-intake-datadoghq.com': 8})
 - urls tried: 6
     - https://silverstaterelief.com/menu -> JSON captured holds no menu data (wrong URL, or menu loads e
-    - https://silverstaterelief.com/menu/api/menu-top-row?searchFilter=&storeId=6020&e -> JSON captured holds no menu data (wrong URL, or menu loads e
-    - https://silverstaterelief.com/menu/vape.data?_routes=routes%2F_menu.%28%24storeS -> JSON captured holds no menu data (wrong URL, or menu loads e
     - https://silverstaterelief.com/shop -> HTTP 404
     - https://silverstaterelief.com/order-online -> HTTP 404
     - https://silverstaterelief.com/specials -> HTTP 404
+    - https://silverstaterelief.com/deals -> HTTP 404
+    - https://silverstaterelief.com/products -> HTTP 404
 
-## thedispensary — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
+## thedispensary — 7 product-shaped nodes present -- parser should have caught these
 - page: https://thedispensarynv.com/shop
-- json payloads: 1 (hosts: {'script.crazyegg.com': 1})
-- urls tried: 6
-    - https://thedispensarynv.com/shop -> JSON captured holds no menu data (wrong URL, or menu loads e
-    - https://thedispensarynv.com/menu -> JSON captured holds no menu data (wrong URL, or menu loads e
-    - https://thedispensarynv.com/order-online -> HTTP 404
-    - https://thedispensarynv.com/specials -> HTTP 404
-    - https://thedispensarynv.com/deals -> JSON captured holds no menu data (wrong URL, or menu loads e
-    - https://thedispensarynv.com/products -> HTTP 404
+- json payloads: 24 (hosts: {'dutchie.com': 7, 'script.crazyegg.com': 1})
+- product-shaped nodes: 7
+- named, unpriced: 'The Dispensary - 2nd Street' keys=['SpecialLogoImage', '__typename', 'acceptsCreditCardTips', 'acceptsDutchiePayTips', 'acceptsTips', 'actionEstimates', 'activeCategories', 'adSettings', 'address', 'aeropay', 'ageVerificationBannerColor', 'ageVerificationBannerHtml', 'alt36', 'bannerImage']
+- named, unpriced: 'Excise' keys=['__typename', 'applyTo', 'deliveryPolicy', 'destinationRate', 'id', 'includeStateSalesTaxInDestinationRate', 'medical', 'name', 'order', 'potency', 'potencyRate', 'rate', 'recreational', 'stages']
+- named, unpriced: 'Municipal Tax' keys=['__typename', 'applyTo', 'deliveryPolicy', 'destinationRate', 'id', 'includeStateSalesTaxInDestinationRate', 'medical', 'name', 'order', 'potency', 'potencyRate', 'rate', 'recreational', 'stages']
+- named, unpriced: 'Sales' keys=['__typename', 'applyTo', 'deliveryPolicy', 'destinationRate', 'id', 'includeStateSalesTaxInDestinationRate', 'medical', 'name', 'order', 'potency', 'potencyRate', 'rate', 'recreational', 'stages']
+- priced, unnamed: $18.0 keys=['__typename', 'activeBatchTags', 'canonicalBrandId', 'canonicalBrandName', 'canonicalCategory', 'canonicalCategoryId', 'canonicalEffectivePotencyMg', 'canonicalID', 'canonicalImgUrl', 'canonicalLabResultUrl', 'canonicalName', 'canonicalPackageId', 'canonicalProductTags', 'canonicalSKU']
+- priced, unnamed: $16.0 keys=['__typename', 'activeBatchTags', 'canonicalBrandId', 'canonicalBrandName', 'canonicalCategory', 'canonicalCategoryId', 'canonicalEffectivePotencyMg', 'canonicalID', 'canonicalImgUrl', 'canonicalLabResultUrl', 'canonicalName', 'canonicalPackageId', 'canonicalProductTags', 'canonicalSKU']
+- priced, unnamed: $18.0 keys=['__typename', 'activeBatchTags', 'canonicalBrandId', 'canonicalBrandName', 'canonicalCategory', 'canonicalCategoryId', 'canonicalEffectivePotencyMg', 'canonicalID', 'canonicalImgUrl', 'canonicalLabResultUrl', 'canonicalName', 'canonicalPackageId', 'canonicalProductTags', 'canonicalSKU']
+- paths: data.filteredProducts.products[].cannabinoidsV2[].value, data.filteredProducts.products[].cannabinoidsV2[].unit, data.filteredProducts.products[].cannabinoidsV2[].cannabinoid, data.filteredProducts.products[].cannabinoidsV2[].__typename, data.filteredDispensaries[].menuOrderSettings[].category, data.filteredDispensaries[].menuOrderSettings[].menuOrder, data.filteredDispensaries[].menuOrderSettings[].__typename, data.filteredDispensaries[].menuSortSettings[].brands, data.filteredDispensaries[].menuSortSettings[].category, data.filteredDispensaries[].menuSortSettings[].menuOrder, data.filteredDispensaries[].menuSortSettings[].__typename, data.filteredDispensaries[].menuSections[].id
 
 ## thesource — named things present but no price the parser recognizes -- PARSER GAP
 - page: https://www.thesourcenv.com/shop
@@ -257,11 +259,11 @@ Call log:
 - named, unpriced: 'The Source Jane' keys=['connectionId', 'inventoryProvider', 'menuProvider', 'name']
 - urls tried: 6
     - https://www.thesourcenv.com/menu -> JSON captured holds no menu data (wrong URL, or menu loads e
+    - https://www.thesourcenv.com/menu/api/footer.data?_routes=routes%2Fapi.footer -> JSON captured holds no menu data (wrong URL, or menu loads e
     - https://www.thesourcenv.com/menu/jane-gold/1687/buy-3-select-sauce-essentials-va -> JSON captured holds no menu data (wrong URL, or menu loads e
     - https://www.thesourcenv.com/shop -> HTTP 404
     - https://www.thesourcenv.com/order-online -> HTTP 404
     - https://www.thesourcenv.com/specials -> named things present but no price the parser recognizes -- P
-    - https://www.thesourcenv.com/deals -> JSON captured holds no menu data (wrong URL, or menu loads e
 - paths: data.ecomLocations[].subEcomLocations[].menuType, data.ecomLocations[].subEcomLocations[].ecomMenuProvider, data.ecomLocations[].ecomMenuProviders, data.ecomMenuProviders, data.menuType, data.recommendationSettings.screenSettings.price, data.recommendationSettings.screenSettings.price.enabled, data.recommendationSettings.screenSettings.price.required, data.recommendationSettings.screenSettings.price.edibleEnabled, data.recommendationSettings.screenSettings.price.edibleRequired, data.reviewSettings.screenSettings.productList, data.screenSettings.productDetails
 
 ## thrive — JSON captured holds no menu data (wrong URL, or menu loads elsewhere)
@@ -315,10 +317,10 @@ Call log:
 - named, unpriced: 'Pods' keys=['avatar_image_url', 'name', 'slug', 'subcategories', 'total_products_count', 'uuid']
 - paths: data.facets.categories[].subcategories[].total_products_count, data.facets.client_categories[].subcategories[].total_products_count, data.facets.tag_groups[].tags[].total_products_count, data.facets.categories[].total_products_count, data.facets.price_weights.gram[].units, data.facets.price_weights.gram[].total_products_count, data.facets.price_weights.gram[].label, data.facets.price_weights.gram[].product_count_storefront, data.facets.price_weights.gram[].product_count_delivery, data.facets.client_categories[].total_products_count, data.facets.price_weights.ounce[].units, data.facets.price_weights.ounce[].total_products_count
 
-## zenleaf — 1131 product-shaped nodes present -- parser should have caught these
+## zenleaf — 1185 product-shaped nodes present -- parser should have caught these
 - page: https://zenleafdispensaries.com/menu
 - json payloads: 12 (hosts: {'zenleafdispensaries.com': 4, 'data.zenleafdispensaries.com': 4})
-- product-shaped nodes: 1131
+- product-shaped nodes: 1185
 - named, unpriced: 'Eastern Time (ET)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
 - named, unpriced: 'Mountain Time (MT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
 - named, unpriced: 'Central Time (CT)' keys=['date', 'day', 'name', 'time', 'timezone', 'tomorrow']
