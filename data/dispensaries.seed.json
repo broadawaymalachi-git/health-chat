@@ -451,7 +451,7 @@
     "id": "leafly_deals",
     "name": "Leafly LV Deals",
     "website": "https://www.leafly.com/deals/las-vegas-nv-us",
-    "menu_url": "https://www.leafly.com/deals/las-vegas-nv-us",
+    "menu_url": "https://www.leafly.com/deals/las-vegas-nv-us/menu",
     "platform": "jane",
     "address": null,
     "lat": null,
