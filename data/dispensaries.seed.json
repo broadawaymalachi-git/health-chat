@@ -394,7 +394,7 @@
     "lon": null,
     "drive_minutes": null,
     "enabled": true,
-    "notes": "unreachable: HTTPError",
+    "notes": "unreachable: URLError",
     "weedmaps_slug": "silver-sage-wellness",
     "leafly_slug": null,
     "is_aggregator": false
